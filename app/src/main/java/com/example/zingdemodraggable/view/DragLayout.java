@@ -17,6 +17,14 @@ import com.example.zingdemodraggable.R;
 
 public class DragLayout extends RelativeLayout {
     private final double AUTO_OPEN_SPEED_LIMIT = 800.0;
+
+    private final int BOTTOM_LEFT = 1;
+    private final int BOTTOM_CENTER = 2;
+    private final int BOTTOM_RIGHT = 3;
+
+    private int bottomMode = BOTTOM_CENTER;
+    private int finalLeft;
+
     private int mDraggingState = 0;
 //    private Button mQueenButton;
     private ViewDragHelper mDragHelper;
@@ -68,7 +76,7 @@ public class DragLayout extends RelativeLayout {
 //                mMainImage.setPivotY(0);
 //                mMainImage.setScaleX(1 - mDragOffset / 2);
 //                mMainImage.setScaleY(1 - mDragOffset / 2);
-            Log.d("ZingDemoDraggable", "onViewPositionChanged called " );
+//            Log.d("ZingDemoDraggable", "onViewPositionChanged called " );
 
             mSecondImage.setAlpha(1 - mDragOffset);
             if (scaleView != MIN_SCALE && requestLayoutFlag) {
@@ -101,7 +109,7 @@ public class DragLayout extends RelativeLayout {
         public int clampViewPositionHorizontal(View child, int left, int dx) {
             final int leftBound = getPaddingLeft();
             final int rightBound = getWidth() - mMainImage.getMeasuredWidth();
-            Log.d("ZingDemoDraggable", "left bound " + leftBound + "right bound " + rightBound);
+//            Log.d("ZingDemoDraggable", "left bound " + leftBound + "right bound " + rightBound);
 
             int newLeft = Math.min(Math.max(left, leftBound), rightBound);
 
@@ -131,7 +139,22 @@ public class DragLayout extends RelativeLayout {
 
             final int settleDestY = settleToOpen ? mVerticalRange : 0;
 
-            if(mDragHelper.settleCapturedViewAt(settleToOpen ? Math.round(getWidth() - getWidth() * MIN_SCALE) : 0, settleDestY)) {
+            if (settleToOpen){
+                switch (bottomMode) {
+                    case BOTTOM_LEFT:
+                        finalLeft = 0;
+                        break;
+                    case BOTTOM_CENTER:
+                        finalLeft = Math.round(getWidth() * 1f / 2 - getWidth() * MIN_SCALE / 2);
+                        break;
+                    default:
+                        finalLeft = Math.round(getWidth() - getWidth() * MIN_SCALE);
+                }
+            } else {
+                finalLeft = 0;
+            }
+
+            if(mDragHelper.settleCapturedViewAt(finalLeft, settleDestY)) {
                 ViewCompat.postInvalidateOnAnimation(DragLayout.this);
             }
         }
@@ -156,23 +179,33 @@ public class DragLayout extends RelativeLayout {
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        Log.d("ZingDemoDraggable", "onSizeChanged called");
+//        Log.d("ZingDemoDraggable", "onSizeChanged called");
 //        mVerticalRange = (int) (h * 0.66);
         super.onSizeChanged(w, h, oldw, oldh);
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom){
-        Log.d("ZingDemoDraggable", "onLayout called " );
+//        Log.d("ZingDemoDraggable", "onLayout called " );
 
 //        mVerticalRange = 1 - width * 9 / 16;
         mVerticalRange = Math.round(getHeight() - getWidth() * 9/16 * MIN_SCALE);
-
+        int finalLeft = 0;
+        switch (bottomMode){
+            case BOTTOM_LEFT:
+                finalLeft = 0;
+                break;
+            case BOTTOM_CENTER:
+                finalLeft = Math.round(getWidth() * 1f / 2 - getWidth() * scaleView / 2);
+                break;
+            default:
+                finalLeft = Math.round(getWidth() - getWidth() * scaleView);
+        }
 //            if (mDraggingState == 0) {
                 mMainImage.layout(
-                        Math.round(getWidth() - getWidth() * scaleView),
+                        finalLeft,
                         mDraggingBorder,
-                        right,
+                        finalLeft + Math.round(right * scaleView),
                         mDraggingBorder + mMainImage.getMeasuredHeight()
 
                 );
@@ -185,9 +218,9 @@ public class DragLayout extends RelativeLayout {
 //
 //            );
             mSecondImage.layout(
-                    Math.round(getWidth() - getWidth() * scaleView),
+                    finalLeft,
                     mDraggingBorder + mMainImage.getMeasuredHeight(),
-                    right,
+                    finalLeft + Math.round(right * scaleView),
                     mDraggingBorder + bottom
             );
 
