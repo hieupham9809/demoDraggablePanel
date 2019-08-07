@@ -1078,7 +1078,6 @@ public class ViewDragHelper {
                 break;
             }
         }
-        Log.d("ZingDemoDraggable", ""+(mDragState == STATE_DRAGGING));
         return mDragState == STATE_DRAGGING;
     }
 
@@ -1419,13 +1418,13 @@ public class ViewDragHelper {
         final int oldTop = mCapturedView.getTop();
         if (dx != 0) {
             clampedX = mCallback.clampViewPositionHorizontal(mCapturedView, left, dx);
-            Log.d("ZingDemoDraggable", "left " + left);
+//            Log.d("ZingDemoDraggable", "left " + left);
 
             mCapturedView.offsetLeftAndRight(clampedX - oldLeft);
         }
         if (dy != 0) {
             clampedY = mCallback.clampViewPositionVertical(mCapturedView, top, dy);
-            Log.d("ZingDemoDraggable", "top Y " + top);
+//            Log.d("ZingDemoDraggable", "top Y " + top);
             mCapturedView.offsetTopAndBottom(clampedY - oldTop);
         }
 

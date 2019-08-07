@@ -19,41 +19,53 @@
         android:id="@+id/drag_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#ffcec4"
-        xmlns:android="http://schemas.android.com/apk/res/android">
+        android:background="#ffcec4">
 
         <VideoView
             android:id="@+id/main_image"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-
-    >
-
-            <!--<Button-->
-            <!--android:id="@+id/queen_button"-->
+            android:layout_height="match_parent" />
+        <!--<ImageView-->
+            <!--android:id="@+id/second_image"-->
             <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:textSize="64dip"-->
-            <!--android:text="Queen"/>-->
-        </VideoView>
-        <ImageView
-            android:id="@+id/second_image"
+            <!--android:layout_height="match_parent"-->
+            <!--android:background="@color/colorAccent"-->
+            <!--android:layout_below="@id/main_image"/>-->
+
+        <LinearLayout
+            android:id="@+id/info_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:weightSum="5"
             android:background="@color/colorPrimaryDark"
             android:layout_below="@+id/main_image"
-            />
+            >
+
+            <TextView
+                android:id="@+id/full_name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                android:layout_weight="4.5"/>
+            <TextView
+                android:id="@+id/episode"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="4"/>
+        </LinearLayout>
 
     </com.example.zingdemodraggable.view.DragLayout>
-    <!--<com.example.zingdemodraggable.view.TestDrag-->
-        <!--android:id="@+id/test_drag"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:background="@color/colorPrimaryDark">-->
-        <!--<ImageView-->
-            <!--android:id="@+id/image_view"-->
-            <!--android:layout_width="100dp"-->
-            <!--android:layout_height="100dp"-->
-            <!--android:background="@color/colorAccent"/>-->
-    <!--</com.example.zingdemodraggable.view.TestDrag>-->
+
 </RelativeLayout>
+    <!--<com.example.zingdemodraggable.view.TestDrag-->
+    <!--android:id="@+id/test_drag"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:background="@color/colorPrimaryDark">-->
+    <!--<ImageView-->
+    <!--android:id="@+id/image_view"-->
+    <!--android:layout_width="100dp"-->
+    <!--android:layout_height="100dp"-->
+    <!--android:background="@color/colorAccent"/>-->
+    <!--</com.example.zingdemodraggable.view.TestDrag>-->

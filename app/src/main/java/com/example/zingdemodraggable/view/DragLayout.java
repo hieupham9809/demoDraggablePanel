@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.VideoView;
 
@@ -22,7 +23,7 @@ public class DragLayout extends RelativeLayout {
     private final int BOTTOM_CENTER = 2;
     private final int BOTTOM_RIGHT = 3;
 
-    private int bottomMode = BOTTOM_CENTER;
+    private int bottomMode = BOTTOM_RIGHT;
     private int finalLeft;
 
     private int mDraggingState = 0;
@@ -33,13 +34,20 @@ public class DragLayout extends RelativeLayout {
     private boolean mIsOpen;
 
     private VideoView mMainImage;
-    private ImageView mSecondImage;
+    private LinearLayout mInfoPanel;
 
     private Boolean requestLayoutFlag = true;
 
     private float mDragOffset;
-    private final float MIN_SCALE = 0.7f;
+    private final float MIN_SCALE = 0.5f;
     private float scaleView = 1f;
+
+    private int infoPanelLeft;
+    private int infoPanelTop;
+    private int infoPanelRight;
+    private int infoPanelBottom;
+
+
     public class DragHelperCallback extends ViewDragHelper.Callback {
         @Override
         public void onViewDragStateChanged(int state) {
@@ -66,6 +74,7 @@ public class DragLayout extends RelativeLayout {
         public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
             mDraggingBorder = top;
             mDragOffset = (float) top / mVerticalRange;
+            Log.d("ZingDemoDraggable", "mDragOffset " + mDragOffset + "y "+(float)((1/0.1275)*mDragOffset*mDragOffset - (1/0.1275) * mDragOffset + 1));
 //            this.setPivotX(mMainImage.getWidth());
 //            mMainImage.setPivotY(mMainImage.getHeight());
 //            mMainImage.setScaleX(1 - mDragOffset / 2);
@@ -78,7 +87,12 @@ public class DragLayout extends RelativeLayout {
 //                mMainImage.setScaleY(1 - mDragOffset / 2);
 //            Log.d("ZingDemoDraggable", "onViewPositionChanged called " );
 
-            mSecondImage.setAlpha(1 - mDragOffset);
+            if (mDragOffset <= 0.85){
+                mInfoPanel.setAlpha((float)((4/2.89)*mDragOffset*mDragOffset - (4/1.7) * mDragOffset + 1));
+            } else {
+                mInfoPanel.setAlpha((float)((4/0.09)*mDragOffset*mDragOffset - (6.8/0.09)*mDragOffset + 2.89/0.09));
+            }
+//            mInfoPanel.setAlpha((float)((1/0.1275)*mDragOffset*mDragOffset - (1/0.1275) * mDragOffset + 1));
             if (scaleView != MIN_SCALE && requestLayoutFlag) {
                 requestLayout();
             } else {
@@ -171,7 +185,7 @@ public class DragLayout extends RelativeLayout {
     protected void onFinishInflate() {
 //        mQueenButton  = (Button) findViewById(R.id.queen_button);
         mMainImage = findViewById(R.id.main_image);
-        mSecondImage = findViewById(R.id.second_image);
+        mInfoPanel = findViewById(R.id.info_layout);
 
         mIsOpen = false;
         super.onFinishInflate();
@@ -194,37 +208,56 @@ public class DragLayout extends RelativeLayout {
         switch (bottomMode){
             case BOTTOM_LEFT:
                 finalLeft = 0;
+                infoPanelLeft = finalLeft + Math.round(right * scaleView);
+                infoPanelTop = mDraggingBorder;
+                infoPanelRight = right;
+                infoPanelBottom = mDraggingBorder + mMainImage.getMeasuredHeight();
                 break;
             case BOTTOM_CENTER:
                 finalLeft = Math.round(getWidth() * 1f / 2 - getWidth() * scaleView / 2);
+                infoPanelLeft = finalLeft;
+                infoPanelTop = mDraggingBorder - mMainImage.getMeasuredHeight();
+                infoPanelRight = finalLeft + Math.round(right * scaleView);
+                infoPanelBottom = mDraggingBorder;
                 break;
             default:
                 finalLeft = Math.round(getWidth() - getWidth() * scaleView);
+                infoPanelLeft = left;
+                infoPanelTop = mDraggingBorder;
+                infoPanelRight = finalLeft;
+                infoPanelBottom = mDraggingBorder + mMainImage.getMeasuredHeight();
         }
-//            if (mDraggingState == 0) {
-                mMainImage.layout(
-                        finalLeft,
-                        mDraggingBorder,
-                        finalLeft + Math.round(right * scaleView),
-                        mDraggingBorder + mMainImage.getMeasuredHeight()
+        mMainImage.layout(
+                finalLeft,
+                mDraggingBorder,
+                finalLeft + Math.round(right * scaleView),
+                mDraggingBorder + mMainImage.getMeasuredHeight()
 
-                );
-//            }
-//            mMainImage.layout(
-//                    0,
-//                    mDraggingBorder,
-//                    right,
-//                    mDraggingBorder + mMainImage.getMeasuredHeight()
-//
-//            );
-            mSecondImage.layout(
-                    finalLeft,
-                    mDraggingBorder + mMainImage.getMeasuredHeight(),
-                    finalLeft + Math.round(right * scaleView),
-                    mDraggingBorder + bottom
+        );
+
+//        mInfoPanel.layout(
+//                finalLeft,
+//                mDraggingBorder + mMainImage.getMeasuredHeight(),
+//                finalLeft + Math.round(right * scaleView),
+//                mDraggingBorder + bottom
+//        );
+
+        if ((float) mDraggingBorder / mVerticalRange > 0.85f) {
+//            mInfoPanel.setAlpha(1f);
+            mInfoPanel.layout(
+                    infoPanelLeft,
+                    infoPanelTop,
+                    infoPanelRight,
+                    infoPanelBottom
             );
-
-
+        } else {
+            mInfoPanel.layout(
+                finalLeft,
+                mDraggingBorder + mMainImage.getMeasuredHeight(),
+                finalLeft + Math.round(right * scaleView),
+                mDraggingBorder + bottom
+            );
+        }
     }
 
     private void onStopDraggingToClosed() {
