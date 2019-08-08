@@ -36,23 +36,50 @@
             android:id="@+id/info_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:weightSum="5"
-            android:background="@color/colorPrimaryDark"
+            android:orientation="horizontal"
+            android:background="#c1d6a7"
+            android:weightSum="3"
             android:layout_below="@+id/main_image"
             >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2">
+                <ImageView
+                    android:id="@+id/thumbnail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top"
+                    />
 
-            <TextView
-                android:id="@+id/full_name"
+            </LinearLayout>
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-                android:layout_weight="4.5"/>
-            <TextView
-                android:id="@+id/episode"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="4"/>
+                android:orientation="vertical"
+                android:layout_weight="1"
+                >
+                <TextView
+                    android:id="@+id/full_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="This is the title of the movie whether its"
+                    />
+                <TextView
+                    android:id="@+id/episode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                    />
+                <TextView
+                    android:id="@+id/releaseDay"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                    />
+
+            </LinearLayout>
+
         </LinearLayout>
 
     </com.example.zingdemodraggable.view.DragLayout>

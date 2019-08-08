@@ -2,6 +2,9 @@ package com.example.zingdemodraggable.view;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -12,9 +15,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.example.zingdemodraggable.R;
+import com.example.zingdemodraggable.datamodel.Video;
 
 public class DragLayout extends RelativeLayout {
     private final double AUTO_OPEN_SPEED_LIMIT = 800.0;
@@ -36,10 +41,18 @@ public class DragLayout extends RelativeLayout {
     private VideoView mMainImage;
     private LinearLayout mInfoPanel;
 
+    private Video video;
+
+    private TextView fullName;
+    private TextView episode;
+    private TextView releaseDay;
+    private ImageView thumbnail;
+
     private Boolean requestLayoutFlag = true;
 
     private float mDragOffset;
     private final float MIN_SCALE = 0.5f;
+    private final float TRANSFORM_POINT = 0.85f;
     private float scaleView = 1f;
 
     private int infoPanelLeft;
@@ -47,7 +60,7 @@ public class DragLayout extends RelativeLayout {
     private int infoPanelRight;
     private int infoPanelBottom;
 
-
+    private Bitmap imageThumbnail = BitmapFactory.decodeResource(getResources(), R.drawable.small_thumbnail);
     public class DragHelperCallback extends ViewDragHelper.Callback {
         @Override
         public void onViewDragStateChanged(int state) {
@@ -87,7 +100,7 @@ public class DragLayout extends RelativeLayout {
 //                mMainImage.setScaleY(1 - mDragOffset / 2);
 //            Log.d("ZingDemoDraggable", "onViewPositionChanged called " );
 
-            if (mDragOffset <= 0.85){
+            if (mDragOffset <= TRANSFORM_POINT){
                 mInfoPanel.setAlpha((float)((4/2.89)*mDragOffset*mDragOffset - (4/1.7) * mDragOffset + 1));
             } else {
                 mInfoPanel.setAlpha((float)((4/0.09)*mDragOffset*mDragOffset - (6.8/0.09)*mDragOffset + 2.89/0.09));
@@ -177,7 +190,10 @@ public class DragLayout extends RelativeLayout {
     public DragLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         mDragHelper = ViewDragHelper.create(this, 1.0f, new DragHelperCallback());
-
+        video = new Video();
+        video.setEpisode(22);
+        video.setFullName("Xuân Hoa Thu Nguyệt - Tập 22");
+        video.setReleaseDay("26/07/2019");
         mIsOpen = false;
     }
 
@@ -186,6 +202,10 @@ public class DragLayout extends RelativeLayout {
 //        mQueenButton  = (Button) findViewById(R.id.queen_button);
         mMainImage = findViewById(R.id.main_image);
         mInfoPanel = findViewById(R.id.info_layout);
+        fullName = findViewById(R.id.full_name);
+        episode = findViewById(R.id.episode);
+        releaseDay = findViewById(R.id.releaseDay);
+        thumbnail = findViewById(R.id.thumbnail);
 
         mIsOpen = false;
         super.onFinishInflate();
@@ -242,7 +262,7 @@ public class DragLayout extends RelativeLayout {
 //                mDraggingBorder + bottom
 //        );
 
-        if ((float) mDraggingBorder / mVerticalRange > 0.85f) {
+        if ((float) mDraggingBorder / mVerticalRange > TRANSFORM_POINT) {
 //            mInfoPanel.setAlpha(1f);
             mInfoPanel.layout(
                     infoPanelLeft,
@@ -267,7 +287,14 @@ public class DragLayout extends RelativeLayout {
     private void onStartDragging() {
 
     }
+    @Override
+    protected void onDraw(Canvas canvas){
+        fullName.setText(video.getFullName());
+        episode.setText(String.format("Tập: %s",video.getEpisode()));
+        releaseDay.setText(String.format("Ngày ra mắt: %s",video.getReleaseDay()));
+        thumbnail.setImageBitmap(imageThumbnail);
 
+    }
 //    private boolean isQueenTarget(MotionEvent event) {
 //        int[] queenLocation = new int[2];
 //        mQueenButton.getLocationOnScreen(queenLocation);
@@ -316,6 +343,10 @@ public class DragLayout extends RelativeLayout {
                 int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth() * 9 / 16 * scaleView), MeasureSpec.EXACTLY);
                 child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
 
+            } else {
+                int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth() * scaleView), MeasureSpec.EXACTLY);
+                int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth() * scaleView), MeasureSpec.EXACTLY);
+                child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
             }
 //            parentWidth += Math.round(child.getMeasuredWidth() * scaleView);
 //            parentHeight += Math.round(child.getMeasuredWidth() * 9 / 16 * scaleView);
