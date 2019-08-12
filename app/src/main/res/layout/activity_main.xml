@@ -15,16 +15,23 @@
     <!--<ImageView-->
         <!--android:layout_width="200dp"-->
         <!--android:layout_height="200dp" />-->
-    <com.example.zingdemodraggable.view.DragLayout
+    <com.example.zingdemodraggable.view.DragYouTubeLayout
         android:id="@+id/drag_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="#ffcec4">
 
-        <VideoView
-            android:id="@+id/main_image"
+        <LinearLayout
+            android:id="@+id/video_wrap"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
+            <VideoView
+                android:id="@+id/main_image"
+                android:layout_width="1080px"
+                android:layout_height="607px" />
+
+        </LinearLayout>
+
         <!--<ImageView-->
             <!--android:id="@+id/second_image"-->
             <!--android:layout_width="match_parent"-->
@@ -82,7 +89,7 @@
 
         </LinearLayout>
 
-    </com.example.zingdemodraggable.view.DragLayout>
+    </com.example.zingdemodraggable.view.DragYouTubeLayout>
 
 </RelativeLayout>
     <!--<com.example.zingdemodraggable.view.TestDrag-->

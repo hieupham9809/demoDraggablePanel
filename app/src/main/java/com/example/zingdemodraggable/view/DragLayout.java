@@ -51,7 +51,7 @@ public class DragLayout extends RelativeLayout {
     private Boolean requestLayoutFlag = true;
 
     private float mDragOffset;
-    private final float MIN_SCALE = 0.5f;
+    private final float MIN_SCALE = 0.7f;
     private final float TRANSFORM_POINT = 0.85f;
     private float scaleView = 1f;
 

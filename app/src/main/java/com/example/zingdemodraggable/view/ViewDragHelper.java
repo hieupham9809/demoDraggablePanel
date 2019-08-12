@@ -1158,6 +1158,7 @@ public class ViewDragHelper {
                     final float y = ev.getY(index);
                     final int idx = (int) (x - mLastMotionX[mActivePointerId]);
                     final int idy = (int) (y - mLastMotionY[mActivePointerId]);
+//                    Log.d("ZingDemoDraggable", "drag to " + y);
 
                     dragTo(mCapturedView.getLeft() + idx, mCapturedView.getTop() + idy, idx, idy);
 

@@ -11,6 +11,7 @@ import android.widget.VideoView;
 
 import com.example.zingdemodraggable.R;
 import com.example.zingdemodraggable.view.DragLayout;
+import com.example.zingdemodraggable.view.DragYouTubeLayout;
 //import com.example.zingdemodraggable.view.TestDrag;
 
 public class MainActivity extends AppCompatActivity {
@@ -18,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
 //    String video_url = "android.resource://" + getPackageName() + "/" + R.raw.sample;
     ProgressDialog pd;
 
-    private DragLayout dragLayout;
+    private DragYouTubeLayout dragLayout;
     private RelativeLayout outerLayout;
 //    private TestDrag testDrag;
 
