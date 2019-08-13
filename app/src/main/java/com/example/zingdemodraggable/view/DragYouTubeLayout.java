@@ -52,8 +52,6 @@ public class DragYouTubeLayout extends RelativeLayout {
     private TextView releaseDay;
     private ImageView thumbnail;
 
-    private Boolean requestLayoutFlag = true;
-
     private float mDragOffset;
 
     private boolean isRelease = false;
@@ -63,17 +61,14 @@ public class DragYouTubeLayout extends RelativeLayout {
 
     private final float MIN_SCALE = 0.5f;
     private final float WIDTH_SCALE = MIN_SCALE - 0.2f;
-    private final int WIDTH_SCALE_RANGE = 100;
+    private final int WIDTH_SCALE_RANGE = 150;
     private final float TRANSFORM_POINT = 0.85f;
     private float scaleView = 1f;
     private float deltaScaleView = 0f;
 
-    private int infoPanelLeft;
-    private int infoPanelTop;
-    private int infoPanelRight;
-    private int infoPanelBottom;
 
     private Bitmap imageThumbnail = BitmapFactory.decodeResource(getResources(), R.drawable.small_thumbnail);
+
     public class DragHelperCallback extends ViewDragHelper.Callback {
         @Override
         public void onViewDragStateChanged(int state) {
@@ -101,38 +96,40 @@ public class DragYouTubeLayout extends RelativeLayout {
             mDraggingBorder = top;
 
             mDragOffset = (float) top / mVerticalRange;
-//            this.setPivotX(mMainImage.getWidth());
-//            mMainImage.setPivotY(mMainImage.getHeight());
-//            mMainImage.setScaleX(1 - mDragOffset / 2);
-//            mMainImage.setScaleY(1 - mDragOffset / 2);
-            scaleView = 1 - mDragOffset/(1 / (1 - MIN_SCALE));
+
+            scaleView = 1 - mDragOffset / (1 / (1 - MIN_SCALE));
+            mMainImage.setPivotX(0);
+            mMainImage.setPivotY(0);
 //            deltaScaleView = 1 - scaleView;
 
 //                mMainImage.setPivotX(mMainImage.getWidth());
 //                mMainImage.setPivotY(0);
 //                mMainImage.setScaleX(1 - mDragOffset / 2);
 //                mMainImage.setScaleY(1 - mDragOffset / 2);
-            if (isRelease && mDraggingBorder >= mVerticalRange){
+
+            if (isRelease && mDraggingBorder >= mVerticalRange && currentDrag < mVerticalRange) {
                 wrapVideo.startAnimation(animation);
                 mInfoPanel.startAnimation(animation);
                 isRelease = false;
                 currentDrag = mVerticalRange + WIDTH_SCALE_RANGE;
-                Log.d("ZingDemoDraggable", "animation actived");
+                Log.d("ZingDemoDraggable", " ati onviewpositionchanged animation actived, duration " );
             }
-            if (mDragOffset <= TRANSFORM_POINT){
-                mInfoPanel.setAlpha((float)((4/2.89)*mDragOffset*mDragOffset - (4/1.7) * mDragOffset + 1));
+            if (mDragOffset <= TRANSFORM_POINT) {
+                mInfoPanel.setAlpha((float) ((4 / 2.89) * mDragOffset * mDragOffset - (4 / 1.7) * mDragOffset + 1));
             } else {
-                mInfoPanel.setAlpha((float)((4/0.09)*mDragOffset*mDragOffset - (6.8/0.09)*mDragOffset + 2.89/0.09));
+                mInfoPanel.setAlpha((float) ((4 / 0.09) * mDragOffset * mDragOffset - (6.8 / 0.09) * mDragOffset + 2.89 / 0.09));
             }
 
-            if (mDraggingBorder == 0 && currentDrag != 0){
+            if (mDraggingBorder == 0 && currentDrag != 0) {
                 currentDrag = 0;
             }
-            if (mDraggingBorder == mVerticalRange && currentDrag < mVerticalRange){
+            if (mDraggingBorder == mVerticalRange && currentDrag < mVerticalRange) {
                 currentDrag = mVerticalRange;
             }
 //            mInfoPanel.setAlpha((float)((1/0.1275)*mDragOffset*mDragOffset - (1/0.1275) * mDragOffset + 1));
+
             requestLayout();
+
 //            if (scaleView != MIN_SCALE && requestLayoutFlag) {
 //                requestLayout();
 //            } else {
@@ -165,7 +162,8 @@ public class DragYouTubeLayout extends RelativeLayout {
                 return mVerticalRange;
             }
         }
-//        @Override
+
+        //        @Override
 //        public int clampViewPositionHorizontal(View child, int left, int dx) {
 //            final int leftBound = getPaddingLeft();
 //            final int rightBound = getWidth() - mMainImage.getMeasuredWidth();
@@ -177,7 +175,6 @@ public class DragYouTubeLayout extends RelativeLayout {
 //        }
         @Override
         public void onViewReleased(View releasedChild, float xvel, float yvel) {
-            Log.d("ZingDemoDraggable", "onViewReleased called " + yvel);
             final float rangeToCheck = mVerticalRange;
             if (mDraggingBorder == 0) {
                 mIsOpen = false;
@@ -185,7 +182,7 @@ public class DragYouTubeLayout extends RelativeLayout {
             }
             if (mDraggingBorder == rangeToCheck) {
                 mIsOpen = true;
-                return;
+//                return;
             }
             boolean settleToOpen = false;
             if (yvel > AUTO_OPEN_SPEED_LIMIT) { // speed has priority over position
@@ -200,33 +197,26 @@ public class DragYouTubeLayout extends RelativeLayout {
 
             final int settleDestY = settleToOpen ? mVerticalRange : 0;
 
-            if (settleToOpen){
+            if (settleToOpen) {
                 isRelease = true;
             }
-//            if (settleToOpen){
-//                switch (bottomMode) {
-//                    case BOTTOM_LEFT:
-//                        finalLeft = 0;
-//                        break;
-//                    case BOTTOM_CENTER:
-//                        finalLeft = Math.round(getWidth() * 1f / 2 - getWidth() * MIN_SCALE / 2);
-//                        break;
-//                    default:
-//                        finalLeft = Math.round(getWidth() - getWidth() * MIN_SCALE);
-//                }
-//            } else {
-//                finalLeft = 0;
-//            }
+
             final int initWidth = wrapVideo.getMeasuredWidth();
-            Log.d("ZingDemoDraggable", "init width "+yvel);
-            float vel = (yvel > 5000f) ? yvel : 5000f;
-            animation = new Animation()
-            {
+            float vel = (yvel > 3000f) ? yvel : 3000f;
+            float lowerBound = 0;
+            if (mDraggingBorder >= mVerticalRange) {
+//                Log.d("ZingDemoDraggable", "lowerBound changed " + ((WIDTH_SCALE - 1) * currentDrag * 1f / WIDTH_SCALE_RANGE + 1 - mVerticalRange * (WIDTH_SCALE - 1) * 1f / WIDTH_SCALE_RANGE));
+                lowerBound = 1 - ((WIDTH_SCALE - 1) * currentDrag * 1f / WIDTH_SCALE_RANGE + 1 - mVerticalRange * (WIDTH_SCALE - 1) * 1f / WIDTH_SCALE_RANGE);
+
+            }
+            final float lowerBoundConstant = lowerBound;
+
+            animation = new Animation() {
                 @Override
                 protected void applyTransformation(float interpolatedTime, Transformation t) {
-                    if(interpolatedTime > 1 - WIDTH_SCALE){
+                    if (interpolatedTime >= 1 - WIDTH_SCALE || interpolatedTime < lowerBoundConstant) {
 
-                    }else{
+                    } else {
                         wrapVideo.layout(
                                 0,
                                 mDraggingBorder,
@@ -234,6 +224,9 @@ public class DragYouTubeLayout extends RelativeLayout {
                                 mDraggingBorder + wrapVideo.getMeasuredHeight()
 
                         );
+//                        Log.d("ZingDemoDraggable","scale " + (interpolatedTime * (MIN_SCALE - 1) / (1 - WIDTH_SCALE) + 1));
+                        mMainImage.setScaleX(interpolatedTime * (MIN_SCALE - 1) / (1 - WIDTH_SCALE) + 1);
+                        mMainImage.setScaleY(interpolatedTime * (MIN_SCALE - 1) / (1 - WIDTH_SCALE) + 1);
                         mInfoPanel.layout(
                                 Math.round(initWidth - initWidth * interpolatedTime),
                                 mDraggingBorder,
@@ -250,31 +243,24 @@ public class DragYouTubeLayout extends RelativeLayout {
                     return true;
                 }
             };
-//            Log.d("ZingDemoDraggable", "duration " + (int)((initWidth * WIDTH_SCALE) * 1f * 1000/ Math.abs(yvel) ) );
-            animation.setDuration((int)((initWidth * (1 - WIDTH_SCALE) * 1f * 1000/ Math.abs(vel) )));
-//            animation.setDuration((int)(initWidth / (wrapVideo.getContext().getResources().getDisplayMetrics().density)));
+            animation.setDuration((int) ((initWidth * (1 - WIDTH_SCALE) * 1f * 1000 / Math.abs(vel))));
 
-            // Collapse speed of 1dp/ms
+            if (mDraggingBorder >= mVerticalRange) {
+                currentDrag = mVerticalRange + WIDTH_SCALE_RANGE;
 
-            if(mDragHelper.settleCapturedViewAt(0, settleDestY)) {
-//                currentDrag = settleToOpen ? mVerticalRange + WIDTH_SCALE_RANGE : 0;
-//                Log.d("ZingDemoDraggable", "scroll completed");
-//                if(yvel == 0){
-//                    yvel = 5000;
-//                }
-//                if (yvel > 0) {
-//                    for (int i = 1; i <= 100; i++) {
-//                        currentDrag = Math.round(mVerticalRange + i );
-//                        Log.d("ZingDemoDraggable", "current drag "+ currentDrag);
-//                        //requestLayout();
-//
-//
-//                    }
-//                }
-//                currentDrag = mVerticalRange + 20;
+                wrapVideo.startAnimation(animation);
+                mInfoPanel.startAnimation(animation);
+
+//                isRelease = false;
+                Log.d("ZingDemoDraggable", "animation actived ");
+                return;
+            }
+            if (mDragHelper.settleCapturedViewAt(0, settleDestY)) {
+
 //                requestLayout();
                 ViewCompat.postInvalidateOnAnimation(DragYouTubeLayout.this);
             }
+
         }
     }
 
@@ -311,21 +297,14 @@ public class DragYouTubeLayout extends RelativeLayout {
     }
 
     @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom){
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
 //        Log.d("ZingDemoDraggable", "onLayout called " );
 
 //        mVerticalRange = 1 - width * 9 / 16;
-        mVerticalRange = Math.round(getHeight() - getWidth() * 9/16 * MIN_SCALE);
+        mVerticalRange = Math.round(getHeight() - getWidth() * 9 / 16 * MIN_SCALE);
 
 
-//        Log.d("ZingDemoDraggable", "current drag "+ currentDrag );
 
-//        mInfoPanel.layout(
-//                finalLeft,
-//                mDraggingBorder + mMainImage.getMeasuredHeight(),
-//                finalLeft + Math.round(right * scaleView),
-//                mDraggingBorder + bottom
-//        );
 
 //        if ((float) mDraggingBorder / mVerticalRange > TRANSFORM_POINT) {
         if (currentDrag >= mVerticalRange) {
@@ -342,6 +321,10 @@ public class DragYouTubeLayout extends RelativeLayout {
                         mDraggingBorder + wrapVideo.getMeasuredHeight()
 
                 );
+
+//                Log.d("ZingDemoDraggable", "scale " + ((MIN_SCALE - 1) * currentDrag * 1f / WIDTH_SCALE_RANGE + 1 - mVerticalRange * (MIN_SCALE - 1) * 1f / WIDTH_SCALE_RANGE));
+                mMainImage.setScaleX(((MIN_SCALE - 1) * currentDrag * 1f / WIDTH_SCALE_RANGE + 1 - mVerticalRange * (MIN_SCALE - 1) * 1f / WIDTH_SCALE_RANGE));
+                mMainImage.setScaleY(((MIN_SCALE - 1) * currentDrag * 1f / WIDTH_SCALE_RANGE + 1 - mVerticalRange * (MIN_SCALE - 1) * 1f / WIDTH_SCALE_RANGE));
                 mInfoPanel.layout(
                         Math.round(right * ((WIDTH_SCALE - 1) * currentDrag * 1f / WIDTH_SCALE_RANGE + 1 - mVerticalRange * (WIDTH_SCALE - 1) * 1f / WIDTH_SCALE_RANGE)),
                         mDraggingBorder,
@@ -350,24 +333,13 @@ public class DragYouTubeLayout extends RelativeLayout {
                 );
             } else {
                 currentDrag = mVerticalRange + WIDTH_SCALE_RANGE;
+
             }
 
         } else {
-//            Log.d("ZingDemoDraggable", "top " + Math.round(mDraggingBorder + wrapVideo.getMeasuredWidth() *1f * (9f / 16) * (deltaScaleView * 1f / 2)) + "bottom " + Math.round(mDraggingBorder + wrapVideo.getMeasuredWidth() *1f * (9f / 16) * (1 -  deltaScaleView * 1f / 2)));
 
-//            wrapVideo.layout(
-//                    0,
-//                    Math.round(mDraggingBorder + wrapVideo.getMeasuredWidth() *1f * (9f / 16) * (deltaScaleView * 1f / 2)),
-//                    right,
-//                    Math.round(mDraggingBorder + wrapVideo.getMeasuredWidth() *1f * (9f / 16) * (1 -  deltaScaleView * 1f / 2))
-//
-//            );
-//            mInfoPanel.layout(
-//                    0,
-//                    Math.round(mDraggingBorder + wrapVideo.getMeasuredWidth() *1f * (9f / 16) * (1 -  deltaScaleView * 1f / 2)),
-//                    right,
-//                    mDraggingBorder + bottom
-//            );
+            mMainImage.setScaleX(1.0f);
+            mMainImage.setScaleY(1.0f);
             wrapVideo.layout(
                     0,
                     mDraggingBorder,
@@ -393,28 +365,22 @@ public class DragYouTubeLayout extends RelativeLayout {
     private void onStartDragging() {
 
     }
+
     @Override
-    protected void onDraw(Canvas canvas){
+    protected void onDraw(Canvas canvas) {
         fullName.setText(video.getFullName());
-        episode.setText(String.format("Tập: %s",video.getEpisode()));
-        releaseDay.setText(String.format("Ngày ra mắt: %s",video.getReleaseDay()));
+        episode.setText(String.format("Tập: %s", video.getEpisode()));
+        releaseDay.setText(String.format("Ngày ra mắt: %s", video.getReleaseDay()));
         thumbnail.setImageBitmap(imageThumbnail);
 
     }
-//    private boolean isQueenTarget(MotionEvent event) {
-//        int[] queenLocation = new int[2];
-//        mQueenButton.getLocationOnScreen(queenLocation);
-//        int upperLimit = queenLocation[1] + mQueenButton.getMeasuredHeight();
-//        int lowerLimit = queenLocation[1];
-//        int y = (int) event.getRawY();
-//        return (y > lowerLimit && y < upperLimit);
-//    }
+
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         final int action = ev.getAction();
 
-        if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP){
+        if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
             mDragHelper.cancel();
             return false;
         }
@@ -434,46 +400,30 @@ public class DragYouTubeLayout extends RelativeLayout {
             ViewCompat.postInvalidateOnAnimation(this);
         }
     }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 //        Log.d("ZingDemoDraggable", "onMeasure called");
-        Log.d("ZingDemoDraggable", "current drag " + currentDrag);
+//        Log.d("ZingDemoDraggable", "current drag " + currentDrag);
 
         int parentWidth = 0;
         int parentHeight = 0;
         int childWidthMeasureSpec;
         int childHeightMeasureSpec;
         measureChildren(widthMeasureSpec, heightMeasureSpec);
-        for (int i = 0; i < getChildCount(); i++){
+        for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
 //            if (child.getId() == R.id.main_image ) {
             if (child.getId() == R.id.video_wrap) {
-                if (currentDrag < mVerticalRange){
-                    childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth() ), MeasureSpec.EXACTLY);
-                    childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth() * 9 / 16 * scaleView), MeasureSpec.EXACTLY);
-                    child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+//                if (currentDrag < mVerticalRange){
+                childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth()), MeasureSpec.EXACTLY);
+                childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth() * 9 / 16 * scaleView), MeasureSpec.EXACTLY);
+                child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
 
-                } else {
-                    if (currentDrag <= mVerticalRange + WIDTH_SCALE_RANGE) {
-                        childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth() * ((WIDTH_SCALE - 1) * currentDrag * 1f / WIDTH_SCALE_RANGE + 1 - mVerticalRange * (WIDTH_SCALE - 1) * 1f / WIDTH_SCALE_RANGE)), MeasureSpec.EXACTLY);
-                        childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth() * 9 / 16 * scaleView), MeasureSpec.EXACTLY);
-                        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) mMainImage.getLayoutParams();
-                        layoutParams.width = Math.round(child.getMeasuredWidth() * ((WIDTH_SCALE - 1) * currentDrag * 1f / WIDTH_SCALE_RANGE + 1 - mVerticalRange * (WIDTH_SCALE - 1) * 1f / WIDTH_SCALE_RANGE));
-
-//                        Log.d("ZingDemoDraggable", "scale width " + Math.round(child.getMeasuredWidth() * ((WIDTH_SCALE - 1) * currentDrag * 1f / WIDTH_SCALE_RANGE + 1 - mVerticalRange * (WIDTH_SCALE - 1) * 1f / WIDTH_SCALE_RANGE)));
-                        child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
-                        mMainImage.setLayoutParams(layoutParams);
-
-                        Log.d("ZingDemoDraggable", "width " + child.getMeasuredWidth());
-
-                    } else {
-                        currentDrag = mVerticalRange + WIDTH_SCALE_RANGE;
-                    }
-                }
 
 
             } else {
-                childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth() ), MeasureSpec.EXACTLY);
+                childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth()), MeasureSpec.EXACTLY);
                 childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth() * scaleView), MeasureSpec.EXACTLY);
                 child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
             }
