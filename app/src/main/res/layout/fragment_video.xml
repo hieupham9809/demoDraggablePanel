@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    tools:context=".fragments.VideoFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <com.example.zingdemodraggable.view.DragYouTubeLayout
+        android:id="@+id/drag_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="2dp"
+
+        android:background="#00000000">
+
+        <LinearLayout
+            android:id="@+id/video_wrap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimaryDark">
+            <VideoView
+                android:id="@+id/main_image"
+                android:layout_width="1080px"
+                android:layout_height="607px" />
+
+        </LinearLayout>
+
+        <!--<ImageView-->
+        <!--android:id="@+id/second_image"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:background="@color/colorAccent"-->
+        <!--android:layout_below="@id/main_image"/>-->
+
+        <include
+            layout="@layout/full_layout_info" />
+
+
+        <com.example.zingdemodraggable.view.NumberProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+
+
+            custom:progress_current="20"
+            custom:progress_max="100"
+
+            custom:progress_reached_bar_height="4dp"
+            custom:progress_reached_color="#3498DB"
+
+            custom:progress_text_visibility="invisible"
+            custom:progress_unreached_bar_height="2.75dp"
+            custom:progress_unreached_color="#CCCCCC" />
+
+
+    </com.example.zingdemodraggable.view.DragYouTubeLayout>
+
+</FrameLayout>

@@ -11,57 +11,28 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:background="#6f263d"
     android:layout_width="match_parent"
+    android:clipChildren="false"
     xmlns:custom="http://schemas.android.com/apk/res-auto">
+
     <!--<ImageView-->
         <!--android:layout_width="200dp"-->
         <!--android:layout_height="200dp" />-->
-    <com.example.zingdemodraggable.view.DragYouTubeLayout
-        android:id="@+id/drag_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="#ffcec4">
 
-        <LinearLayout
-            android:id="@+id/video_wrap"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-            <VideoView
-                android:id="@+id/main_image"
-                android:layout_width="1080px"
-                android:layout_height="607px" />
-
-        </LinearLayout>
-
-        <!--<ImageView-->
-            <!--android:id="@+id/second_image"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:background="@color/colorAccent"-->
-            <!--android:layout_below="@id/main_image"/>-->
-
-        <include
-            layout="@layout/full_layout_info" />
+    <fragment
+        android:name="com.example.zingdemodraggable.fragments.ListFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
 
-        <com.example.zingdemodraggable.view.NumberProgressBar
-            android:id="@+id/progress_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+    </fragment>
+    <FrameLayout
+        android:id="@+id/video_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
 
+    </FrameLayout>
 
-            custom:progress_current="20"
-            custom:progress_max="100"
-
-            custom:progress_reached_bar_height="4dp"
-            custom:progress_reached_color="#3498DB"
-
-            custom:progress_text_visibility="invisible"
-            custom:progress_unreached_bar_height="2.75dp"
-            custom:progress_unreached_color="#CCCCCC" />
-
-
-    </com.example.zingdemodraggable.view.DragYouTubeLayout>
 
 </RelativeLayout>
     <!--<com.example.zingdemodraggable.view.TestDrag-->

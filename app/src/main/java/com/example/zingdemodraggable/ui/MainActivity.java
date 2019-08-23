@@ -6,10 +6,15 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.MediaController;
@@ -17,6 +22,8 @@ import android.widget.RelativeLayout;
 import android.widget.VideoView;
 
 import com.example.zingdemodraggable.R;
+import com.example.zingdemodraggable.fragments.ListFragment;
+import com.example.zingdemodraggable.fragments.VideoFragment;
 import com.example.zingdemodraggable.view.DragLayout;
 import com.example.zingdemodraggable.view.DragYouTubeLayout;
 import com.example.zingdemodraggable.view.NumberProgressBar;
@@ -24,11 +31,12 @@ import com.example.zingdemodraggable.view.NumberProgressBar;
 import java.lang.ref.WeakReference;
 //import com.example.zingdemodraggable.view.TestDrag;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ListFragment.OnListFragmentListener {
     VideoView video;
 
 //    String video_url = "android.resource://" + getPackageName() + "/" + R.raw.sample;
     ProgressDialog pd;
+
 
     private MainActivity mainActivity = this;
     private DragYouTubeLayout dragLayout;
@@ -44,18 +52,42 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 //        testDrag = findViewById(R.id.test_drag);
-        dragLayout = findViewById(R.id.drag_layout);
-        outerLayout = findViewById(R.id.outer_layout);
-        video = findViewById(R.id.main_image);
+//        dragLayout = findViewById(R.id.drag_layout);
+//        outerLayout = findViewById(R.id.outer_layout);
+//        video = findViewById(R.id.main_image);
+//        dragLayout.bringToFront();
+//        dragLayout.invalidate();
 
-        dragLayout.setPlayPauseCustomOnClickListener(new DragYouTubeLayout.PlayPauseCustomOnClickListener() {
-            @Override
-            public void onClick() {
+//        addBtn.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+////                if (event.getAction() == MotionEvent.ACTION_DOWN){
+////                    Log.d("ZingDemoDraggable", "clicked event");
+////                    return true;
+////
+////                } else {
+////                    return false;
+////                }
+//                Log.d("ZingDemoDraggable", "clicked event");
+//                return true;
+//
+//            }
+//        });
+//        addBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Log.d("ZingDemoDraggable", "clicked event");
+//            }
+//        });
+//        dragLayout.setPlayPauseCustomOnClickListener(new DragYouTubeLayout.PlayPauseCustomOnClickListener() {
+//            @Override
+//            public void onClick() {
+//
+//            }
+//        });
 
-            }
-        });
 
-        numberProgressBar = findViewById(R.id.progress_bar);
+//        numberProgressBar = findViewById(R.id.progress_bar);
 //        if (mediaController == null){
 //            mediaController = new MediaController(MainActivity.this);
 //            mediaController.setAnchorView(video);
@@ -64,14 +96,14 @@ public class MainActivity extends AppCompatActivity {
 //            video.setMediaController(mediaController);
 //
 //        }
-        pd = new ProgressDialog(MainActivity.this);
-        pd.setMessage("Buffering video ...");
-        pd.show();
-
-        Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.sample);
-        video.setVideoURI(uri);
-        dragLayout.setVideoView(video);
-        dragLayout.startVideo(pd);
+//        pd = new ProgressDialog(MainActivity.this);
+//        pd.setMessage("Buffering video ...");
+//        pd.show();
+//
+//        Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.sample);
+//        video.setVideoURI(uri);
+//        dragLayout.setVideoView(video);
+//        dragLayout.startVideo(pd);
 //        video.start();
 
 //        numberProgressBar.incrementProgressBy(50);
@@ -92,5 +124,22 @@ public class MainActivity extends AppCompatActivity {
 
     }//onCreate
 
+    @Override
+    public void onAddButtonClicked(){
+        VideoFragment videoFragment = VideoFragment.newInstance("android.resource://" + getPackageName() + "/" + R.raw.sample);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.video_fragment, videoFragment);
+        fragmentTransaction.commit();
+
+    }
+
+    @Override
+    public void onDelButtonClicked(){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Fragment fragment = fragmentManager.findFragmentById(R.id.video_fragment);
+        fragmentManager.beginTransaction().remove(fragment).commit();
+
+    }
 
 }
