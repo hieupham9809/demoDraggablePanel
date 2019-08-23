@@ -233,14 +233,7 @@ public class DragYouTubeLayout extends RelativeLayout {
 
             requestLayout();
 
-//            if (scaleView != MIN_SCALE && requestLayoutFlag) {
-//                requestLayout();
-//            } else {
-//                requestLayoutFlag = false;
-//                if (mDraggingBorder < mVerticalRange * 2 / 3){
-//                    requestLayoutFlag = true;
-//                }
-//            }
+
         }
 
         public int getViewVerticalDragRange(View child) {
@@ -393,9 +386,7 @@ public class DragYouTubeLayout extends RelativeLayout {
         if (mVerticalRange == 0){
         mVerticalRange = Math.round(getHeight() - getWidth() * 9f / 16 * MIN_SCALE);
         }
-//        Log.d("ZingDemoDraggable", "mVerticalRange " + mVerticalRange);
-//        Log.d("ZingDemoDraggable", "currentDrag " + currentDrag);
-//        setY(mDraggingBorder);
+
 
 
 
