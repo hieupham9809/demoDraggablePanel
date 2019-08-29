@@ -24,4 +24,12 @@
     <declare-styleable name="Themes">
         <attr name="numberProgressBarStyle" format="reference"/>
     </declare-styleable>
+    <declare-styleable name="DragYouTubeLayout">
+        <attr name="progress_bar_enable" format="boolean">
+
+        </attr>
+        <attr name="main_child_view_id" format="integer"/>
+
+
+    </declare-styleable>
 </resources>

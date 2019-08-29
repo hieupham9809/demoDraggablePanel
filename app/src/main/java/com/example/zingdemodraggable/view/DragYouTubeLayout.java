@@ -3,13 +3,10 @@ package com.example.zingdemodraggable.view;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.media.MediaPlayer;
-import android.os.Handler;
-import android.os.Message;
+
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -19,9 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
+
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -29,47 +24,48 @@ import android.widget.VideoView;
 
 import com.example.zingdemodraggable.R;
 import com.example.zingdemodraggable.datamodel.Video;
-import com.example.zingdemodraggable.ui.MainActivity;
 
-import java.lang.ref.WeakReference;
 
 public class DragYouTubeLayout extends RelativeLayout {
     private final double AUTO_OPEN_SPEED_LIMIT = 800.0;
-    private static final int SHOW_PROGRESS = 1;
-    private DragYouTubeLayout dragYouTubeLayout = this;
-    private final int BOTTOM_LEFT = 1;
-    private final int BOTTOM_CENTER = 2;
-    private final int BOTTOM_RIGHT = 3;
+    private static final Boolean DEFAULT_ENABLE_PROGRESS_BAR = true;
 
-    private int bottomMode = BOTTOM_RIGHT;
-    private int finalLeft;
+    // Set replaceView 's Id and layout
+    private final int replaceViewId = R.id.mini_info;
+    private int replaceViewLayout = R.layout.minimize_info;
+
+    // Set mainView 's Id and layout
+    private LinearLayout mainView;
+    private final int mainViewId = R.id.main_view;
+
+
+    // Set secondView 's Id and layout
+    private RelativeLayout secondView;
+    private final int secondViewId = R.id.info_layout;
+    private int secondViewLayout = R.layout.full_layout_info;
+
+
+    private VideoView mainViewChild;
+    private int mainViewChildId;
 
     private Context context;
     private int mDraggingState = 0;
-    //    private Button mQueenButton;
     private ViewDragHelper mDragHelper;
     private int mDraggingBorder;
     private int mVerticalRange = 0;
     private boolean mIsOpen;
 
-    private LinearLayout wrapVideo;
-    private VideoView mMainImage;
-    private RelativeLayout mInfoPanel;
+
+    private Boolean isEnableProgressBar;
+
+    public Boolean getEnableProgressBar() {
+        return isEnableProgressBar;
+    }
 
     private NumberProgressBar numberProgressBar;
     private RelativeLayout miniInfo;
 
-    private Video video;
-    private VideoView videoView;
-
-    private TextView fullName;
-    private TextView episode;
-    private TextView releaseDay;
-    private ImageView thumbnail;
-
-    private TextView miniTitle;
-    private TextView miniEpisode;
-    private ImageButton playPauseButton;
+    private OnDragViewChangeListener listener;
 
     private ViewGroup parent;
 
@@ -87,90 +83,12 @@ public class DragYouTubeLayout extends RelativeLayout {
 
     private final float TRANSFORM_POINT = 0.85f;
     private float scaleView = 1f;
-    private float deltaScaleView = 0f;
-    private PlayPauseCustomOnClickListener listener;
-    private ExtendsHandler extendsHandler;
+//    private float deltaScaleView = 0f;
 
-    private Bitmap imageThumbnail = BitmapFactory.decodeResource(getResources(), R.drawable.small_thumbnail);
-
-    public void setVideoView(VideoView videoView) {
-        this.videoView = videoView;
-        extendsHandler = new ExtendsHandler(dragYouTubeLayout);
-
-    }
-    public void startVideo(final ProgressDialog pd){
-        if (videoView == null){
-            return;
-        }
-        videoView.start();
-        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                pd.dismiss();
-//                Log.d("ZingDemoDraggable", "video duration "+ video.getDuration());
-                numberProgressBar.setMax(videoView.getDuration());
-
-                extendsHandler.sendEmptyMessage(SHOW_PROGRESS);
-
-            }
-        });
-    }
-    protected static class ExtendsHandler extends Handler
-    {
-        private final WeakReference<DragYouTubeLayout> dragYouTubeLayoutWeakReference;
-        public ExtendsHandler(DragYouTubeLayout dragYouTubeLayout){
-            dragYouTubeLayoutWeakReference = new WeakReference<>(dragYouTubeLayout);
-        }
-
-        @Override
-        public void handleMessage(Message msg)
-        {
-            int pos;
-            switch (msg.what)
-            {
-                // ...
-
-                case SHOW_PROGRESS:
-                    pos = dragYouTubeLayoutWeakReference.get().setProgress();
-                    if ( dragYouTubeLayoutWeakReference.get().videoView.isPlaying())
-                    {
-                        msg = obtainMessage(SHOW_PROGRESS);
-                        sendMessageDelayed(msg, 1000 - (pos % 1000));
-                    }
-                    break;
-
-                // ...
-            }
-        }
-    };
-    public int setProgress() {
-//        if (mPlayer == null || mDragging) {
-//            return 0;
-//        }
-        int position = videoView.getCurrentPosition();
-        int duration = videoView.getDuration();
-//        Log.d("ZingDemoDraggable", "current position "+ position);
-
-//        Log.d("ZingDemoDraggable", "video duration "+ duration);
-        if (numberProgressBar != null) {
-            if (duration > 0) {
-                // use long to avoid overflow
-//                long pos = 100L * position / duration;
-//                numberProgressBar.setProgress( (int) pos);
-                numberProgressBar.setProgress(position);
-
-//                Log.d("ZingDemoDraggable", "set position " + pos);
-            }
-
-        }
-
-        return position;
-    }
-    public interface PlayPauseCustomOnClickListener {
-        void onClick();
-    }
-    public void setPlayPauseCustomOnClickListener(PlayPauseCustomOnClickListener listener){
+    public void setOnDragViewChangeListener(OnDragViewChangeListener listener){
         this.listener = listener;
+        listener.onMiniViewReplaced();
+
     }
     public class DragHelperCallback extends ViewDragHelper.Callback {
         @Override
@@ -201,26 +119,27 @@ public class DragYouTubeLayout extends RelativeLayout {
             mDragOffset = (float) top / mVerticalRange;
 
             scaleView = 1 - mDragOffset / (1 / (1 - MIN_SCALE));
-            mMainImage.setPivotX(0);
-            mMainImage.setPivotY(0);
+            mainViewChild.setPivotX(0);
+            mainViewChild.setPivotY(0);
 //            deltaScaleView = 1 - scaleView;
 
-//                mMainImage.setPivotX(mMainImage.getWidth());
-//                mMainImage.setPivotY(0);
-//                mMainImage.setScaleX(1 - mDragOffset / 2);
-//                mMainImage.setScaleY(1 - mDragOffset / 2);
+//                mainViewChild.setPivotX(mainViewChild.getWidth());
+//                mainViewChild.setPivotY(0);
+//                mainViewChild.setScaleX(1 - mDragOffset / 2);
+//                mainViewChild.setScaleY(1 - mDragOffset / 2);
+
 
             if (isRelease && mDraggingBorder >= mVerticalRange && currentDrag < mVerticalRange) {
-                wrapVideo.startAnimation(animation);
-//                mInfoPanel.startAnimation(animation);
+                mainView.startAnimation(animation);
+//                secondView.startAnimation(animation);
                 isRelease = false;
                 currentDrag = mVerticalRange + WIDTH_SCALE_RANGE;
 //                Log.d("ZingDemoDraggable", " ati onviewpositionchanged animation actived, duration " );
             }
             if (mDragOffset <= TRANSFORM_POINT) {
-                mInfoPanel.setAlpha((float) ((4 / 2.89) * mDragOffset * mDragOffset - (4 / 1.7) * mDragOffset + 1));
+                secondView.setAlpha((float) ((4 / 2.89) * mDragOffset * mDragOffset - (4 / 1.7) * mDragOffset + 1));
             } else {
-                mInfoPanel.setAlpha((float) ((4 / 0.09) * mDragOffset * mDragOffset - (6.8 / 0.09) * mDragOffset + 2.89 / 0.09));
+                secondView.setAlpha((float) ((4 / 0.09) * mDragOffset * mDragOffset - (6.8 / 0.09) * mDragOffset + 2.89 / 0.09));
             }
 
             if (mDraggingBorder == 0 && currentDrag != 0) {
@@ -229,7 +148,7 @@ public class DragYouTubeLayout extends RelativeLayout {
             if (mDraggingBorder == mVerticalRange && currentDrag < mVerticalRange) {
                 currentDrag = mVerticalRange;
             }
-//            mInfoPanel.setAlpha((float)((1/0.1275)*mDragOffset*mDragOffset - (1/0.1275) * mDragOffset + 1));
+//            secondView.setAlpha((float)((1/0.1275)*mDragOffset*mDragOffset - (1/0.1275) * mDragOffset + 1));
 
             requestLayout();
 
@@ -242,7 +161,7 @@ public class DragYouTubeLayout extends RelativeLayout {
 
         @Override
         public boolean tryCaptureView(View view, int i) {
-            return (view.getId() == R.id.video_wrap);
+            return (view.getId() == R.id.main_view);
         }
 
         @Override
@@ -262,7 +181,7 @@ public class DragYouTubeLayout extends RelativeLayout {
         //        @Override
 //        public int clampViewPositionHorizontal(View child, int left, int dx) {
 //            final int leftBound = getPaddingLeft();
-//            final int rightBound = getWidth() - mMainImage.getMeasuredWidth();
+//            final int rightBound = getWidth() - mainViewChild.getMeasuredWidth();
 ////            Log.d("ZingDemoDraggable", "left bound " + leftBound + "right bound " + rightBound);
 //
 //            int newLeft = Math.min(Math.max(left, leftBound), rightBound);
@@ -297,7 +216,7 @@ public class DragYouTubeLayout extends RelativeLayout {
                 isRelease = true;
             }
 
-            final int initWidth = wrapVideo.getMeasuredWidth();
+            final int initWidth = mainView.getMeasuredWidth();
             float vel = (yvel > 3000f) ? yvel : 3000f;
             float lowerBound = 0;
             if (mDraggingBorder >= mVerticalRange) {
@@ -327,8 +246,7 @@ public class DragYouTubeLayout extends RelativeLayout {
             if (mDraggingBorder >= mVerticalRange) {
                 currentDrag = mVerticalRange + WIDTH_SCALE_RANGE;
 
-                wrapVideo.startAnimation(animation);
-//                mInfoPanel.startAnimation(animation);
+                mainView.startAnimation(animation);
 
 //                isRelease = false;
 //                Log.d("ZingDemoDraggable", "animation actived ");
@@ -347,26 +265,20 @@ public class DragYouTubeLayout extends RelativeLayout {
         super(context, attrs);
         this.context = context;
         mDragHelper = ViewDragHelper.create(this, 1.0f, new DragHelperCallback());
-        video = new Video();
-        video.setEpisode(22);
-        video.setFullName("Xuân Hoa Thu Nguyệt - Tập 22");
-        video.setReleaseDay("26/07/2019");
-        mIsOpen = false;
+        initAtribute(attrs);
+//        video = new Video();
+//        video.setEpisode(22);
+//        video.setFullName("Xuân Hoa Thu Nguyệt - Tập 22");
+//        video.setReleaseDay("26/07/2019");
+//        mIsOpen = false;
     }
 
     @Override
     protected void onFinishInflate() {
-//        mQueenButton  = (Button) findViewById(R.id.queen_button);
-        wrapVideo = findViewById(R.id.video_wrap);
-        mMainImage = findViewById(R.id.main_image);
-        mInfoPanel = findViewById(R.id.info_layout);
-        fullName = findViewById(R.id.full_name);
-        episode = findViewById(R.id.episode);
-        releaseDay = findViewById(R.id.releaseDay);
-        thumbnail = findViewById(R.id.thumbnail);
+        mainView = findViewById(mainViewId);
+        secondView = findViewById(secondViewId);
         numberProgressBar = findViewById(R.id.progress_bar);
-
-
+        mainViewChild = findViewById(mainViewChildId);
         mIsOpen = false;
         super.onFinishInflate();
     }
@@ -395,50 +307,27 @@ public class DragYouTubeLayout extends RelativeLayout {
 //            Log.d("ZingDemoDraggable", "final call " + currentDrag);
 
             // Replace view info
-            if (mInfoPanel.getId() != R.id.mini_info) {
-                parent = (ViewGroup) mInfoPanel.getParent();
-                int index = parent.indexOfChild(mInfoPanel);
-                parent.removeView(mInfoPanel);
-                mInfoPanel = (RelativeLayout) LayoutInflater.from(context).inflate(R.layout.minimize_info, parent, false);
-                parent.addView(mInfoPanel, index);
+            if (secondView.getId() != replaceViewId) {
+                parent = (ViewGroup) secondView.getParent();
+                int index = parent.indexOfChild(secondView);
+                parent.removeView(secondView);
+                secondView = (RelativeLayout) LayoutInflater.from(context).inflate(replaceViewLayout, parent, false);
+                parent.addView(secondView, index);
 
-                miniInfo = findViewById(R.id.mini_info);
-                miniTitle = findViewById(R.id.mini_title);
-                miniEpisode = findViewById(R.id.mini_episode);
-                playPauseButton = findViewById(R.id.play_pause_button);
-                if (videoView.isPlaying()){
-                    playPauseButton.setImageResource(R.drawable.pause_icon);
-                } else {
-                    playPauseButton.setImageResource(R.drawable.play_icon);
-                }
-                playPauseButton.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View view){
-//                        listener.onClick();
-                        if(videoView.isPlaying()){
-                            videoView.pause();
-                            playPauseButton.setImageResource(R.drawable.play_icon);
+                listener.onSecondViewReplaced();
+                //move{
 
-                        } else {
-                            videoView.start();
-                            playPauseButton.setImageResource(R.drawable.pause_icon);
-                            extendsHandler.sendEmptyMessage(SHOW_PROGRESS);
-
-                        }
-                    }
-                });
-
-                miniTitle.setText(video.getFullName());
-                miniEpisode.setText(String.format("Tập: %s", video.getEpisode()));
+                
+                //}
             }
             if (currentDrag > mVerticalRange + WIDTH_SCALE_RANGE) {
                 currentDrag = mVerticalRange + WIDTH_SCALE_RANGE;
             }
-//            Log.d("ZingDemoDraggable", "measured height " + wrapVideo.getMeasuredWidth());
+//            Log.d("ZingDemoDraggable", "measured height " + mainView.getMeasuredWidth());
 
-            int originalVideoHeight = wrapVideo.getMeasuredWidth() * 9 / 16;
+            int originalVideoHeight = mainView.getMeasuredWidth() * 9 / 16;
 //            Log.d("ZingDemoDraggable", "top onLayout" + Math.round(currentDrag * originalVideoHeight *(MIN_SCALE - MIN_SCALE_COLLAPSE) * 1f / WIDTH_SCALE_RANGE + mVerticalRange - mVerticalRange * (MIN_SCALE - MIN_SCALE_COLLAPSE) * originalVideoHeight * 1f / WIDTH_SCALE_RANGE));
-            wrapVideo.layout(
+            mainView.layout(
                     0,
                     Math.round(currentDrag * originalVideoHeight *(MIN_SCALE - MIN_SCALE_COLLAPSE) * 1f / WIDTH_SCALE_RANGE + mVerticalRange - mVerticalRange * (MIN_SCALE - MIN_SCALE_COLLAPSE) * originalVideoHeight * 1f / WIDTH_SCALE_RANGE),
                     Math.round(right * ((WIDTH_SCALE - 1) * currentDrag * 1f / WIDTH_SCALE_RANGE + 1 - mVerticalRange * (WIDTH_SCALE - 1) * 1f / WIDTH_SCALE_RANGE)),
@@ -446,11 +335,13 @@ public class DragYouTubeLayout extends RelativeLayout {
 
             );
 
-//                Log.d("ZingDemoDraggable", "scale " + ((MIN_SCALE - 1) * currentDrag * 1f / WIDTH_SCALE_RANGE + 1 - mVerticalRange * (MIN_SCALE - 1) * 1f / WIDTH_SCALE_RANGE));
-            mMainImage.setScaleX(((MIN_SCALE - 1) * currentDrag * 1f / WIDTH_SCALE_RANGE + 1 - mVerticalRange * (MIN_SCALE - 1) * 1f / WIDTH_SCALE_RANGE) );
-            mMainImage.setScaleY(((MIN_SCALE - 1) * currentDrag * 1f / WIDTH_SCALE_RANGE + 1 - mVerticalRange * (MIN_SCALE - 1) * 1f / WIDTH_SCALE_RANGE) );
+//            Log.d("ZingDemoDraggable", "mainViewChild " + mainViewChild);
 
-            mInfoPanel.layout(
+            if (mainViewChild != null) {
+                mainViewChild.setScaleX(((MIN_SCALE - 1) * currentDrag * 1f / WIDTH_SCALE_RANGE + 1 - mVerticalRange * (MIN_SCALE - 1) * 1f / WIDTH_SCALE_RANGE));
+                mainViewChild.setScaleY(((MIN_SCALE - 1) * currentDrag * 1f / WIDTH_SCALE_RANGE + 1 - mVerticalRange * (MIN_SCALE - 1) * 1f / WIDTH_SCALE_RANGE));
+            }
+            secondView.layout(
                     Math.round(right * ((WIDTH_SCALE - 1) * currentDrag * 1f / WIDTH_SCALE_RANGE + 1 - mVerticalRange * (WIDTH_SCALE - 1) * 1f / WIDTH_SCALE_RANGE)),
                     Math.round(currentDrag * originalVideoHeight *(MIN_SCALE - MIN_SCALE_COLLAPSE) * 1f / WIDTH_SCALE_RANGE + mVerticalRange - mVerticalRange * (MIN_SCALE - MIN_SCALE_COLLAPSE) * originalVideoHeight * 1f / WIDTH_SCALE_RANGE),
                     right,
@@ -459,46 +350,46 @@ public class DragYouTubeLayout extends RelativeLayout {
 
 
         } else {
-            if (mInfoPanel.getId() != R.id.info_layout) {
-                parent = (ViewGroup) mInfoPanel.getParent();
-                int index = parent.indexOfChild(mInfoPanel);
-                parent.removeView(mInfoPanel);
-                mInfoPanel = (RelativeLayout) LayoutInflater.from(context).inflate(R.layout.full_layout_info, parent, false);
-                parent.addView(mInfoPanel, index);
+            if (secondView.getId() != secondViewId) {
+                parent = (ViewGroup) secondView.getParent();
+                int index = parent.indexOfChild(secondView);
+                parent.removeView(secondView);
+                secondView = (RelativeLayout) LayoutInflater.from(context).inflate(secondViewLayout, parent, false);
+                parent.addView(secondView, index);
 
-                fullName = findViewById(R.id.full_name);
-                episode = findViewById(R.id.episode);
-                releaseDay = findViewById(R.id.releaseDay);
-                thumbnail = findViewById(R.id.thumbnail);
+                listener.onMiniViewReplaced();
 
-                fullName.setText(video.getFullName());
-                episode.setText(String.format("Tập: %s", video.getEpisode()));
-                releaseDay.setText(String.format("Ngày ra mắt: %s", video.getReleaseDay()));
-                thumbnail.setImageBitmap(imageThumbnail);
+
             }
-            mMainImage.setScaleX(1.0f);
-            mMainImage.setScaleY(1.0f);
-            wrapVideo.layout(
+            if (mainViewChild != null) {
+                mainViewChild.setScaleX(1.0f);
+                mainViewChild.setScaleY(1.0f);
+            }
+            mainView.layout(
                     0,
                     mDraggingBorder,
                     right,
-                    mDraggingBorder + wrapVideo.getMeasuredHeight()
+                    mDraggingBorder + mainView.getMeasuredHeight()
 
             );
 
-            mInfoPanel.layout(
+            secondView.layout(
                     0,
-                    mDraggingBorder + wrapVideo.getMeasuredHeight(),
+                    mDraggingBorder + mainView.getMeasuredHeight(),
                     right,
                     bottom
             );
         }
-        numberProgressBar.layout(
-                0,
-                wrapVideo.getBottom() - numberProgressBar.getMeasuredHeight(),
-                numberProgressBar.getMeasuredWidth(),
-                wrapVideo.getBottom()
-        );
+        // move{
+        if (getEnableProgressBar()) {
+            numberProgressBar.layout(
+                    0,
+                    mainView.getBottom() - numberProgressBar.getMeasuredHeight(),
+                    numberProgressBar.getMeasuredWidth(),
+                    mainView.getBottom()
+            );
+        }
+        // }
 
     }
 
@@ -513,10 +404,10 @@ public class DragYouTubeLayout extends RelativeLayout {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        fullName.setText(video.getFullName());
-        episode.setText(String.format("Tập: %s", video.getEpisode()));
-        releaseDay.setText(String.format("Ngày ra mắt: %s", video.getReleaseDay()));
-        thumbnail.setImageBitmap(imageThumbnail);
+//        fullName.setText(video.getFullName());
+//        episode.setText(String.format("Tập: %s", video.getEpisode()));
+//        releaseDay.setText(String.format("Ngày ra mắt: %s", video.getReleaseDay()));
+//        thumbnail.setImageBitmap(imageThumbnail);
 
     }
 
@@ -530,9 +421,7 @@ public class DragYouTubeLayout extends RelativeLayout {
             mDragHelper.cancel();
             return false;
         }
-        boolean should = mDragHelper.shouldInterceptTouchEvent(ev);
-        Log.d("ZingDemoDraggable", "onInterceptTouchEvent " + should);
-        return should;
+        return mDragHelper.shouldInterceptTouchEvent(ev);
 
 //        return mDragHelper.shouldInterceptTouchEvent(ev);
 //        return false;
@@ -552,9 +441,9 @@ public class DragYouTubeLayout extends RelativeLayout {
     }
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        Log.d("ZingDemoDraggable", "onTouchEvent");
+//        Log.d("ZingDemoDraggable", "onTouchEvent");
         mDragHelper.processTouchEvent(ev);
-        boolean isDragViewHit = isViewHit(wrapVideo, (int) ev.getX(), (int) ev.getY());
+        boolean isDragViewHit = isViewHit(mainView, (int) ev.getX(), (int) ev.getY());
 
         return isDragViewHit;
     }
@@ -589,19 +478,19 @@ public class DragYouTubeLayout extends RelativeLayout {
             View child = getChildAt(i);
 //            if (child.getId() == R.id.main_image ) {
             switch (child.getId()){
-                case R.id.video_wrap:
+                case mainViewId:
                     childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth()), MeasureSpec.EXACTLY);
                     childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth() * 1f * 9 / 16 * (scaleView - collapseScale)), MeasureSpec.EXACTLY);
                     child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
 
                     break;
-                case R.id.info_layout:
+                case secondViewId:
                     childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth()), MeasureSpec.EXACTLY);
                     childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth() * scaleView), MeasureSpec.EXACTLY);
                     child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
 
                     break;
-                case R.id.mini_info:
+                case replaceViewId:
                     childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth() * (1 - WIDTH_SCALE) ), MeasureSpec.EXACTLY);
                     childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth()* 1f * 9 / 16 * (scaleView - collapseScale)), MeasureSpec.EXACTLY);
                     child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
@@ -629,5 +518,21 @@ public class DragYouTubeLayout extends RelativeLayout {
 
     public boolean isOpen() {
         return mIsOpen;
+    }
+    public interface OnDragViewChangeListener{
+        void onMiniViewReplaced();
+        void onSecondViewReplaced();
+    }
+    private void initAtribute(AttributeSet attributeSet){
+        if (attributeSet == null){
+            return;
+        }
+
+        TypedArray typedArray = context.obtainStyledAttributes(attributeSet, R.styleable.DragYouTubeLayout);
+        this.isEnableProgressBar = typedArray.getBoolean(R.styleable.DragYouTubeLayout_progress_bar_enable, DEFAULT_ENABLE_PROGRESS_BAR);
+
+        this.mainViewChildId = typedArray.getResourceId(R.styleable.DragYouTubeLayout_main_child_view_id, -1);
+
+
     }
 }

@@ -19,6 +19,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.MediaController;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.example.zingdemodraggable.R;
@@ -33,7 +34,7 @@ import java.lang.ref.WeakReference;
 
 public class MainActivity extends AppCompatActivity implements ListFragment.OnListFragmentListener {
     VideoView video;
-
+    String urlVideo = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4";
 //    String video_url = "android.resource://" + getPackageName() + "/" + R.raw.sample;
     ProgressDialog pd;
 
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements ListFragment.OnLi
 
 
         setContentView(R.layout.activity_main);
+
 //        testDrag = findViewById(R.id.test_drag);
 //        dragLayout = findViewById(R.id.drag_layout);
 //        outerLayout = findViewById(R.id.outer_layout);
@@ -126,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements ListFragment.OnLi
 
     @Override
     public void onAddButtonClicked(){
-        VideoFragment videoFragment = VideoFragment.newInstance("android.resource://" + getPackageName() + "/" + R.raw.sample);
+        VideoFragment videoFragment = VideoFragment.newInstance(urlVideo);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.video_fragment, videoFragment);

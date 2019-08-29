@@ -35,14 +35,3 @@
 
 
 </RelativeLayout>
-    <!--<com.example.zingdemodraggable.view.TestDrag-->
-    <!--android:id="@+id/test_drag"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"-->
-    <!--android:background="@color/colorPrimaryDark">-->
-    <!--<ImageView-->
-    <!--android:id="@+id/image_view"-->
-    <!--android:layout_width="100dp"-->
-    <!--android:layout_height="100dp"-->
-    <!--android:background="@color/colorAccent"/>-->
-    <!--</com.example.zingdemodraggable.view.TestDrag>-->

@@ -12,11 +12,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:elevation="2dp"
-
+        custom:main_child_view_id="@+id/main_image"
+        custom:progress_bar_enable="true"
         android:background="#00000000">
 
         <LinearLayout
-            android:id="@+id/video_wrap"
+            android:id="@+id/main_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/colorPrimaryDark">
