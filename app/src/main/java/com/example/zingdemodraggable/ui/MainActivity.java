@@ -35,7 +35,9 @@ public class MainActivity extends AppCompatActivity implements ListFragment.OnLi
     public void onDelButtonClicked(){
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment fragment = fragmentManager.findFragmentById(R.id.video_fragment);
-        fragmentManager.beginTransaction().remove(fragment).commit();
+        if (fragment != null) {
+            fragmentManager.beginTransaction().remove(fragment).commit();
+        }
 
     }
 
