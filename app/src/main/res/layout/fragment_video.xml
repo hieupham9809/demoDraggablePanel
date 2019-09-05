@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:custom="http://schemas.android.com/apk/res-auto"
     tools:context=".fragments.VideoFragment">
-
-    <!-- TODO: Update blank fragment layout -->
 
     <com.example.zingdemodraggable.view.DragYouTubeLayout
         android:id="@+id/drag_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="#00000000"
         android:elevation="2dp"
         custom:main_child_view_id="@+id/main_image"
-        custom:progress_bar_enable="true"
-        android:background="#00000000">
+        custom:progress_bar_enable="true">
 
         <LinearLayout
             android:id="@+id/main_view"
@@ -23,23 +21,25 @@
             android:layout_height="wrap_content"
             android:background="@color/colorPrimaryDark"
             android:orientation="vertical">
+
             <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
-                <VideoView
+
+                <com.example.zingdemodraggable.view.VideoCustomView
                     android:id="@+id/main_image"
                     android:layout_width="1080px"
                     android:layout_height="607px"
 
                     />
+
                 <com.example.zingdemodraggable.view.ControllerVideo
                     android:id="@+id/front_layout"
                     android:layout_width="1080px"
                     android:layout_height="607px"
-                    android:background="#000000"
                     android:alpha="0.5"
-                    android:visibility="invisible"
-                    >
+                    android:background="#000000"
+                    android:visibility="invisible">
 
                     <ImageButton
                         android:id="@+id/big_previous_button"
@@ -62,6 +62,7 @@
                         custom:layout_constraintLeft_toLeftOf="@+id/front_layout"
                         custom:layout_constraintRight_toRightOf="@+id/front_layout"
                         custom:layout_constraintTop_toTopOf="@+id/front_layout" />
+
                     <ImageButton
                         android:id="@+id/big_next_button"
                         android:layout_width="50dp"
@@ -71,7 +72,7 @@
                         custom:layout_constraintBottom_toBottomOf="parent"
                         custom:layout_constraintLeft_toRightOf="@+id/big_play_pause_button"
                         custom:layout_constraintRight_toRightOf="parent"
-                        custom:layout_constraintTop_toTopOf="parent"/>
+                        custom:layout_constraintTop_toTopOf="parent" />
 
 
                 </com.example.zingdemodraggable.view.ControllerVideo>
@@ -79,28 +80,15 @@
             </FrameLayout>
 
 
-
-
-
         </LinearLayout>
 
-        <!--<ImageView-->
-        <!--android:id="@+id/second_image"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:background="@color/colorAccent"-->
-        <!--android:layout_below="@id/main_image"/>-->
-
-        <include
-            layout="@layout/full_layout_info" />
+        <include layout="@layout/full_layout_info" />
 
 
         <com.example.zingdemodraggable.view.NumberProgressBar
             android:id="@+id/progress_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
-
 
             custom:progress_current="20"
             custom:progress_max="100"

@@ -1,15 +1,11 @@
 package com.example.zingdemodraggable.view;
 
-
-import android.app.ProgressDialog;
 import android.content.Context;
 
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
 
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,12 +15,8 @@ import android.view.animation.Transformation;
 
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.VideoView;
 
 import com.example.zingdemodraggable.R;
-import com.example.zingdemodraggable.datamodel.Video;
-
 
 public class DragYouTubeLayout extends RelativeLayout {
     private final double AUTO_OPEN_SPEED_LIMIT = 800.0;
@@ -45,7 +37,7 @@ public class DragYouTubeLayout extends RelativeLayout {
     private final int secondViewLayout = R.layout.full_layout_info;
 
 
-    private VideoView mainViewChild;
+    private VideoCustomView mainViewChild;
     private int mainViewChildId;
 
     private Context context;
@@ -63,7 +55,6 @@ public class DragYouTubeLayout extends RelativeLayout {
     }
 
     private NumberProgressBar numberProgressBar;
-    private RelativeLayout miniInfo;
 
     private OnDragViewChangeListener listener;
 
@@ -83,20 +74,20 @@ public class DragYouTubeLayout extends RelativeLayout {
 
     private final float TRANSFORM_POINT = 0.85f;
     private float scaleView = 1f;
-//    private float deltaScaleView = 0f;
 
-    public void setOnDragViewChangeListener(OnDragViewChangeListener listener){
+    public void setOnDragViewChangeListener(OnDragViewChangeListener listener) {
         this.listener = listener;
         listener.onMiniViewReplaced();
 
     }
+
     public class DragHelperCallback extends ViewDragHelper.Callback {
         @Override
         public void onViewDragStateChanged(int state) {
             if (state == mDraggingState) { // no change
                 return;
             }
-            if ((mDraggingState == ViewDragHelper.STATE_DRAGGING || mDraggingState == ViewDragHelper.STATE_SETTLING) &&
+            if (isMoving() &&
                     state == ViewDragHelper.STATE_IDLE) {
                 // the view stopped from moving.
 
@@ -122,20 +113,11 @@ public class DragYouTubeLayout extends RelativeLayout {
             scaleView = 1 - mDragOffset / (1 / (1 - MIN_SCALE));
             mainViewChild.setPivotX(0);
             mainViewChild.setPivotY(0);
-//            deltaScaleView = 1 - scaleView;
-
-//                mainViewChild.setPivotX(mainViewChild.getWidth());
-//                mainViewChild.setPivotY(0);
-//                mainViewChild.setScaleX(1 - mDragOffset / 2);
-//                mainViewChild.setScaleY(1 - mDragOffset / 2);
-
 
             if (isRelease && mDraggingBorder >= mVerticalRange && currentDrag < mVerticalRange) {
                 mainView.startAnimation(animation);
-//                secondView.startAnimation(animation);
                 isRelease = false;
                 currentDrag = mVerticalRange + WIDTH_SCALE_RANGE;
-//                Log.d("ZingDemoDraggable", " ati onviewpositionchanged animation actived, duration " );
             }
             if (mDragOffset <= TRANSFORM_POINT) {
                 secondView.setAlpha((float) ((4 / 2.89) * mDragOffset * mDragOffset - (4 / 1.7) * mDragOffset + 1));
@@ -149,7 +131,6 @@ public class DragYouTubeLayout extends RelativeLayout {
             if (mDraggingBorder == mVerticalRange && currentDrag < mVerticalRange) {
                 currentDrag = mVerticalRange;
             }
-//            secondView.setAlpha((float)((1/0.1275)*mDragOffset*mDragOffset - (1/0.1275) * mDragOffset + 1));
 
             requestLayout();
 
@@ -162,13 +143,11 @@ public class DragYouTubeLayout extends RelativeLayout {
 
         @Override
         public boolean tryCaptureView(View view, int i) {
-//            Log.d("ZingDemoDraggable", "second " + (view.getId() == R.id.mini_info));
             return (view.getId() == R.id.main_view || view.getId() == R.id.mini_info);
         }
 
         @Override
         public int clampViewPositionVertical(View child, int top, int dy) {
-//            Log.d("ZingDemoDraggable", "vertical");
 
             currentDrag += dy;
             final int topBound = getPaddingTop();
@@ -180,16 +159,6 @@ public class DragYouTubeLayout extends RelativeLayout {
             }
         }
 
-        //        @Override
-//        public int clampViewPositionHorizontal(View child, int left, int dx) {
-//            final int leftBound = getPaddingLeft();
-//            final int rightBound = getWidth() - mainViewChild.getMeasuredWidth();
-////            Log.d("ZingDemoDraggable", "left bound " + leftBound + "right bound " + rightBound);
-//
-//            int newLeft = Math.min(Math.max(left, leftBound), rightBound);
-//
-//            return newLeft;
-//        }
         @Override
         public void onViewReleased(View releasedChild, float xvel, float yvel) {
             final float rangeToCheck = mVerticalRange;
@@ -199,7 +168,6 @@ public class DragYouTubeLayout extends RelativeLayout {
             }
             if (mDraggingBorder == rangeToCheck) {
                 mIsOpen = true;
-//                return;
             }
             boolean settleToOpen = false;
             if (yvel > AUTO_OPEN_SPEED_LIMIT) { // speed has priority over position
@@ -232,7 +200,7 @@ public class DragYouTubeLayout extends RelativeLayout {
                 @Override
                 protected void applyTransformation(float interpolatedTime, Transformation t) {
 
-                    currentDrag = Math.round(interpolatedTime * WIDTH_SCALE_RANGE + mVerticalRange );
+                    currentDrag = Math.round(interpolatedTime * WIDTH_SCALE_RANGE + mVerticalRange);
                     if (currentDrag >= lowerBoundConstant) {
                         requestLayout();
                     }
@@ -247,16 +215,11 @@ public class DragYouTubeLayout extends RelativeLayout {
 
             if (mDraggingBorder >= mVerticalRange) {
                 currentDrag = mVerticalRange + WIDTH_SCALE_RANGE;
-
                 mainView.startAnimation(animation);
-
-//                isRelease = false;
-//                Log.d("ZingDemoDraggable", "animation actived ");
                 return;
             }
             if (mDragHelper.settleCapturedViewAt(0, settleDestY)) {
 
-//                requestLayout();
                 ViewCompat.postInvalidateOnAnimation(DragYouTubeLayout.this);
             }
 
@@ -268,11 +231,7 @@ public class DragYouTubeLayout extends RelativeLayout {
         this.context = context;
         mDragHelper = ViewDragHelper.create(this, 1.0f, new DragHelperCallback());
         initAtribute(attrs);
-//        video = new Video();
-//        video.setEpisode(22);
-//        video.setFullName("Xuân Hoa Thu Nguyệt - Tập 22");
-//        video.setReleaseDay("26/07/2019");
-//        mIsOpen = false;
+
     }
 
     @Override
@@ -287,31 +246,22 @@ public class DragYouTubeLayout extends RelativeLayout {
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-//        Log.d("ZingDemoDraggable", "onSizeChanged called");
-//        mVerticalRange = (int) (h * 0.66);
         super.onSizeChanged(w, h, oldw, oldh);
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        if (currentDrag == 0){
+        if (currentDrag == 0) {
             listener.onLayoutFlattened();
         } else {
             listener.onLayoutChanged();
         }
 
-//        mVerticalRange = 1 - width * 9 / 16;
-        if (mVerticalRange == 0){
+        if (mVerticalRange == 0) {
             mVerticalRange = Math.round(getHeight() - getWidth() * 9f / 16 * MIN_SCALE);
         }
 
-
-
-
-//        if ((float) mDraggingBorder / mVerticalRange > TRANSFORM_POINT) {
         if (currentDrag >= mVerticalRange) {
-//            Log.d("ZingDemoDraggable", "final call " + currentDrag);
-
             // Replace view info
             if (secondView.getId() != replaceViewId) {
                 parent = (ViewGroup) secondView.getParent();
@@ -321,27 +271,20 @@ public class DragYouTubeLayout extends RelativeLayout {
                 parent.addView(secondView, index);
 
                 listener.onSecondViewReplaced();
-                //move{
 
-                
-                //}
             }
             if (currentDrag > mVerticalRange + WIDTH_SCALE_RANGE) {
                 currentDrag = mVerticalRange + WIDTH_SCALE_RANGE;
             }
-//            Log.d("ZingDemoDraggable", "measured height " + mainView.getMeasuredWidth());
 
             int originalVideoHeight = mainView.getMeasuredWidth() * 9 / 16;
-//            Log.d("ZingDemoDraggable", "top onLayout" + Math.round(currentDrag * originalVideoHeight *(MIN_SCALE - MIN_SCALE_COLLAPSE) * 1f / WIDTH_SCALE_RANGE + mVerticalRange - mVerticalRange * (MIN_SCALE - MIN_SCALE_COLLAPSE) * originalVideoHeight * 1f / WIDTH_SCALE_RANGE));
             mainView.layout(
                     0,
-                    Math.round(currentDrag * originalVideoHeight *(MIN_SCALE - MIN_SCALE_COLLAPSE) * 1f / WIDTH_SCALE_RANGE + mVerticalRange - mVerticalRange * (MIN_SCALE - MIN_SCALE_COLLAPSE) * originalVideoHeight * 1f / WIDTH_SCALE_RANGE),
+                    Math.round(currentDrag * originalVideoHeight * (MIN_SCALE - MIN_SCALE_COLLAPSE) * 1f / WIDTH_SCALE_RANGE + mVerticalRange - mVerticalRange * (MIN_SCALE - MIN_SCALE_COLLAPSE) * originalVideoHeight * 1f / WIDTH_SCALE_RANGE),
                     Math.round(right * ((WIDTH_SCALE - 1) * currentDrag * 1f / WIDTH_SCALE_RANGE + 1 - mVerticalRange * (WIDTH_SCALE - 1) * 1f / WIDTH_SCALE_RANGE)),
                     bottom
 
             );
-
-//            Log.d("ZingDemoDraggable", "mainViewChild " + mainViewChild);
 
             if (mainViewChild != null) {
                 mainViewChild.setScaleX(((MIN_SCALE - 1) * currentDrag * 1f / WIDTH_SCALE_RANGE + 1 - mVerticalRange * (MIN_SCALE - 1) * 1f / WIDTH_SCALE_RANGE));
@@ -349,11 +292,10 @@ public class DragYouTubeLayout extends RelativeLayout {
             }
             secondView.layout(
                     Math.round(right * ((WIDTH_SCALE - 1) * currentDrag * 1f / WIDTH_SCALE_RANGE + 1 - mVerticalRange * (WIDTH_SCALE - 1) * 1f / WIDTH_SCALE_RANGE)),
-                    Math.round(currentDrag * originalVideoHeight *(MIN_SCALE - MIN_SCALE_COLLAPSE) * 1f / WIDTH_SCALE_RANGE + mVerticalRange - mVerticalRange * (MIN_SCALE - MIN_SCALE_COLLAPSE) * originalVideoHeight * 1f / WIDTH_SCALE_RANGE),
+                    Math.round(currentDrag * originalVideoHeight * (MIN_SCALE - MIN_SCALE_COLLAPSE) * 1f / WIDTH_SCALE_RANGE + mVerticalRange - mVerticalRange * (MIN_SCALE - MIN_SCALE_COLLAPSE) * originalVideoHeight * 1f / WIDTH_SCALE_RANGE),
                     right,
                     bottom
             );
-
 
         } else {
             if (secondView.getId() != secondViewId) {
@@ -364,7 +306,6 @@ public class DragYouTubeLayout extends RelativeLayout {
                 parent.addView(secondView, index);
 
                 listener.onMiniViewReplaced();
-
 
             }
             if (mainViewChild != null) {
@@ -386,7 +327,7 @@ public class DragYouTubeLayout extends RelativeLayout {
                     bottom
             );
         }
-        // move{
+
         if (getEnableProgressBar()) {
             numberProgressBar.layout(
                     0,
@@ -395,7 +336,6 @@ public class DragYouTubeLayout extends RelativeLayout {
                     mainView.getBottom()
             );
         }
-        // }
 
     }
 
@@ -408,34 +348,18 @@ public class DragYouTubeLayout extends RelativeLayout {
 
     }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-//        fullName.setText(video.getFullName());
-//        episode.setText(String.format("Tập: %s", video.getEpisode()));
-//        releaseDay.setText(String.format("Ngày ra mắt: %s", video.getReleaseDay()));
-//        thumbnail.setImageBitmap(imageThumbnail);
-
-    }
-
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
 
         final int action = ev.getAction();
-//        Log.d("ZingDemoDraggable", "action " + action);
-
         if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
             mDragHelper.cancel();
             return false;
         }
 
-        Boolean should = mDragHelper.shouldInterceptTouchEvent(ev);
-//        Log.d("ZingDemoDraggable", "onIntercept DragLayout " + should);
+        return mDragHelper.shouldInterceptTouchEvent(ev);
 
-        return should;
-
-//        return mDragHelper.shouldInterceptTouchEvent(ev);
-//        return false;
     }
 
     private boolean isViewHit(View view, int x, int y) {
@@ -450,18 +374,12 @@ public class DragYouTubeLayout extends RelativeLayout {
                 && screenY >= viewLocation[1]
                 && screenY < viewLocation[1] + view.getHeight();
     }
+
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-//        Log.d("ZingDemoDraggable", "onTouchEvent DragLayout action " + ev.getAction());
         mDragHelper.processTouchEvent(ev);
-        boolean isDragViewHit = isViewHit(mainView, (int) ev.getX(), (int) ev.getY()) || isViewHit(secondView,(int) ev.getX(), (int) ev.getY());
 
-//        if (mDraggingState == MotionEvent.ACTION_DOWN && ev.getAction() == MotionEvent.ACTION_UP){
-////            Log.d("ZingDemoDraggable", "release");
-//
-//            return false;
-//        }
-        return isDragViewHit;
+        return isViewHit(mainView, (int) ev.getX(), (int) ev.getY()) || isViewHit(secondView, (int) ev.getX(), (int) ev.getY());
     }
 
     @Override
@@ -478,8 +396,8 @@ public class DragYouTubeLayout extends RelativeLayout {
         int childHeightMeasureSpec;
         measureChildren(widthMeasureSpec, heightMeasureSpec);
         float collapseScale = 0;
-        if (currentDrag >= mVerticalRange){
-            if (currentDrag <= mVerticalRange + WIDTH_SCALE_RANGE){
+        if (currentDrag >= mVerticalRange) {
+            if (currentDrag <= mVerticalRange + WIDTH_SCALE_RANGE) {
                 collapseScale = currentDrag * (MIN_SCALE - MIN_SCALE_COLLAPSE) * 1f / WIDTH_SCALE_RANGE + mVerticalRange * (MIN_SCALE_COLLAPSE - MIN_SCALE) * 1f / WIDTH_SCALE_RANGE;
             } else {
                 collapseScale = MIN_SCALE - MIN_SCALE_COLLAPSE;
@@ -487,13 +405,10 @@ public class DragYouTubeLayout extends RelativeLayout {
         } else {
             collapseScale = 0;
         }
-//        Log.d("ZingDemoDraggable", "scale " + (scaleView - collapseScale));
 
-//        Log.d("ZingDemoDraggable", "collapse scale "+ collapseScale);
         for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
-//            if (child.getId() == R.id.main_image ) {
-            switch (child.getId()){
+            switch (child.getId()) {
                 case mainViewId:
                     childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth()), MeasureSpec.EXACTLY);
                     childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth() * 1f * 9 / 16 * (scaleView - collapseScale)), MeasureSpec.EXACTLY);
@@ -507,8 +422,8 @@ public class DragYouTubeLayout extends RelativeLayout {
 
                     break;
                 case replaceViewId:
-                    childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth() * (1 - WIDTH_SCALE) ), MeasureSpec.EXACTLY);
-                    childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth()* 1f * 9 / 16 * (scaleView - collapseScale)), MeasureSpec.EXACTLY);
+                    childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth() * (1 - WIDTH_SCALE)), MeasureSpec.EXACTLY);
+                    childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(Math.round(child.getMeasuredWidth() * 1f * 9 / 16 * (scaleView - collapseScale)), MeasureSpec.EXACTLY);
                     child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
 
                     break;
@@ -524,7 +439,6 @@ public class DragYouTubeLayout extends RelativeLayout {
 
         setMeasuredDimension(resolveSizeAndState(maxWidth, widthMeasureSpec, 0),
                 resolveSizeAndState(maxHeight, heightMeasureSpec, 0));
-//        setMeasuredDimension(parentWidth, parentHeight);
     }
 
     public boolean isMoving() {
@@ -532,17 +446,18 @@ public class DragYouTubeLayout extends RelativeLayout {
                 mDraggingState == ViewDragHelper.STATE_SETTLING);
     }
 
-    public boolean isOpen() {
-        return mIsOpen;
-    }
-    public interface OnDragViewChangeListener{
+    public interface OnDragViewChangeListener {
         void onMiniViewReplaced();
+
         void onSecondViewReplaced();
+
         void onLayoutChanged();
+
         void onLayoutFlattened();
     }
-    private void initAtribute(AttributeSet attributeSet){
-        if (attributeSet == null){
+
+    private void initAtribute(AttributeSet attributeSet) {
+        if (attributeSet == null) {
             return;
         }
 

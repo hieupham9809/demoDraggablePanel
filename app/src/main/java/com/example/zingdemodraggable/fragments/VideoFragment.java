@@ -1,11 +1,9 @@
 package com.example.zingdemodraggable.fragments;
 
-
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -16,18 +14,16 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.VideoView;
 
 import com.example.zingdemodraggable.R;
 import com.example.zingdemodraggable.datamodel.Video;
 import com.example.zingdemodraggable.view.ControllerVideo;
 import com.example.zingdemodraggable.view.DragYouTubeLayout;
 import com.example.zingdemodraggable.view.NumberProgressBar;
+import com.example.zingdemodraggable.view.VideoCustomView;
 
 import java.lang.ref.WeakReference;
 
@@ -44,9 +40,8 @@ public class VideoFragment extends Fragment {
     private static final int SHOW_PROGRESS = 1;
 
     private Video video;
-    private VideoView videoView;
+    private VideoCustomView videoView;
     private DragYouTubeLayout dragLayout;
-    private LinearLayout frontLayout;
     private VideoFragment videoFragment = this;
     private ProgressDialog pd;
     private ControllerVideo controllerVideo;
@@ -69,51 +64,38 @@ public class VideoFragment extends Fragment {
         }
     };
 
-    protected static class ExtendsHandler extends Handler
-    {
+    protected static class ExtendsHandler extends Handler {
         private final WeakReference<VideoFragment> videoFragmentWeakReference;
-        public ExtendsHandler(VideoFragment videoFragment){
+
+        public ExtendsHandler(VideoFragment videoFragment) {
             videoFragmentWeakReference = new WeakReference<>(videoFragment);
         }
 
         @Override
-        public void handleMessage(Message msg)
-        {
+        public void handleMessage(Message msg) {
             int pos;
-            switch (msg.what)
-            {
-                // ...
+            switch (msg.what) {
 
                 case SHOW_PROGRESS:
                     pos = videoFragmentWeakReference.get().setProgress();
-                    if ( videoFragmentWeakReference.get().videoView.isPlaying())
-                    {
+                    if (videoFragmentWeakReference.get().videoView.isPlaying()) {
                         msg = obtainMessage(SHOW_PROGRESS);
                         sendMessageDelayed(msg, 1000 - (pos % 1000));
                     }
                     break;
 
-                // ...
             }
         }
     }
+
     public int setProgress() {
-//        if (mPlayer == null || mDragging) {
-//            return 0;
-//        }
         int position = videoView.getCurrentPosition();
         int duration = videoView.getDuration();
-//        Log.d("ZingDemoDraggable", "current position "+ position);
 
-//        Log.d("ZingDemoDraggable", "video duration "+ duration);
         if (numberProgressBar != null) {
             if (duration > 0) {
-                // use long to avoid overflow
-//                long pos = 100L * position / duration;
-//                numberProgressBar.setProgress( (int) pos);
                 numberProgressBar.setProgress(position);
 
-//                Log.d("ZingDemoDraggable", "set position " + pos);
             }
 
         }
@@ -165,16 +147,18 @@ public class VideoFragment extends Fragment {
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_video, container, false);
         videoView = view.findViewById(R.id.main_image);
-//        videoView.bringToFront();
-//        videoView.invalidate();
+
         controllerVideo = view.findViewById(R.id.front_layout);
         videoView.setOnTouchListener(new View.OnTouchListener() {
+
+
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+
                 if (!isLayoutChanged) {
                     int action = event.getAction();
-//                Log.d("ZingDemoDraggable", "videoView clicked " + action);
                     if (action == MotionEvent.ACTION_UP) {
+
                         if (controllerVideo.getVisibility() == View.INVISIBLE) {
                             controllerVideo.setVisibility(View.VISIBLE);
                             final ImageButton bigPlayPauseButton = view.findViewById(R.id.big_play_pause_button);
@@ -183,7 +167,6 @@ public class VideoFragment extends Fragment {
 
                             bigNextButton.setImageResource(R.drawable.next_button);
                             bigPreviousButton.setImageResource(R.drawable.previous_button);
-//                    bigPlayPauseButton.setBackgroundResource(0);
                             if (videoView.isPlaying()) {
                                 bigPlayPauseButton.setImageResource(R.drawable.big_pause);
                             } else {
@@ -192,9 +175,7 @@ public class VideoFragment extends Fragment {
                             bigPlayPauseButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
-//                        listener.onClick();
                                     mHandler.removeCallbacks(mRunnable);
-                                    Log.d("ZingDemoDraggable", "removeCallBacks");
 
                                     mHandler.postDelayed(mRunnable, 2000);
                                     if (videoView.isPlaying()) {
@@ -212,7 +193,6 @@ public class VideoFragment extends Fragment {
 
 
                             mHandler.removeCallbacks(mRunnable);
-                            Log.d("ZingDemoDraggable", "removeCallBacks");
 
                             mHandler.postDelayed(mRunnable, 2000);
                         } else {
@@ -224,18 +204,10 @@ public class VideoFragment extends Fragment {
             }
 
         });
-//        videoView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                controllerVideo.setVisibility(View.VISIBLE);
-//                mHandler.removeCallbacks(mRunnable);
-//                mHandler.postDelayed(mRunnable, 3000);
-//
-//            }
-//        });
+
         dragLayout = view.findViewById(R.id.drag_layout);
-//        frontLayout = view.findViewById(R.id.front_layout);
-        numberProgressBar = (dragLayout.getEnableProgressBar()) ? (NumberProgressBar)view.findViewById(R.id.progress_bar) : null;
+
+        numberProgressBar = (dragLayout.getEnableProgressBar()) ? (NumberProgressBar) view.findViewById(R.id.progress_bar) : null;
         dragLayout.setOnDragViewChangeListener(new DragYouTubeLayout.OnDragViewChangeListener() {
             @Override
             public void onMiniViewReplaced() {
@@ -258,17 +230,17 @@ public class VideoFragment extends Fragment {
                 TextView miniEpisode = view.findViewById(R.id.mini_episode);
                 final ImageButton playPauseButton = view.findViewById(R.id.play_pause_button);
 
-                if (videoView.isPlaying()){
+                if (videoView.isPlaying()) {
                     playPauseButton.setImageResource(R.drawable.pause_icon);
 
                 } else {
                     playPauseButton.setImageResource(R.drawable.play_icon);
                 }
-                playPauseButton.setOnClickListener(new View.OnClickListener(){
+                playPauseButton.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View view){
+                    public void onClick(View view) {
 //                        listener.onClick();
-                        if(videoView.isPlaying()){
+                        if (videoView.isPlaying()) {
                             videoView.pause();
                             playPauseButton.setImageResource(R.drawable.play_icon);
 
@@ -287,30 +259,27 @@ public class VideoFragment extends Fragment {
             }
 
             @Override
-            public void onLayoutChanged(){
-                if (isLayoutChanged){
+            public void onLayoutChanged() {
+                if (isLayoutChanged) {
                     return;
                 }
                 isLayoutChanged = true;
                 controllerVideo.setVisibility(View.INVISIBLE);
 
             }
+
             @Override
-            public void onLayoutFlattened(){
+            public void onLayoutFlattened() {
                 isLayoutChanged = false;
             }
         });
         dragLayout.bringToFront();
         dragLayout.invalidate();
-//        frontLayout.bringToFront();
-//        frontLayout.invalidate();
+
         pd = new ProgressDialog(getActivity());
         pd.setMessage("Buffering video ...");
         pd.show();
 
-        Uri uri = Uri.parse(mUrl);
-//        videoView.setVideoURI(uri);
-        Log.d("ZingDemoDraggable", mUrl);
         videoView.setVideoPath(mUrl);
         extendsHandler = new ExtendsHandler(videoFragment);
 
@@ -319,7 +288,7 @@ public class VideoFragment extends Fragment {
             @Override
             public void onPrepared(MediaPlayer mp) {
                 pd.dismiss();
-//                Log.d("ZingDemoDraggable", "video duration "+ video.getDuration());
+
                 if (numberProgressBar != null) {
                     numberProgressBar.setMax(videoView.getDuration());
                 }
@@ -328,11 +297,7 @@ public class VideoFragment extends Fragment {
             }
         });
 
-
-
         return view;
     }
-
-
 
 }

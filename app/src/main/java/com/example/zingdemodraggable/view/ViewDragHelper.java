@@ -1150,14 +1150,12 @@ public class ViewDragHelper {
             }
 
             case MotionEvent.ACTION_MOVE: {
-//                Log.d("ZingDemoDraggable", "action move");
                 if (mDragState == STATE_DRAGGING) {
                     final int index = ev.findPointerIndex(mActivePointerId);
                     final float x = ev.getX(index);
                     final float y = ev.getY(index);
                     final int idx = (int) (x - mLastMotionX[mActivePointerId]);
                     final int idy = (int) (y - mLastMotionY[mActivePointerId]);
-//                    Log.d("ZingDemoDraggable", "drag to " + y);
 
                     dragTo(mCapturedView.getLeft() + idx, mCapturedView.getTop() + idy, idx, idy);
 
@@ -1418,13 +1416,11 @@ public class ViewDragHelper {
         final int oldTop = mCapturedView.getTop();
         if (dx != 0) {
             clampedX = mCallback.clampViewPositionHorizontal(mCapturedView, left, dx);
-//            Log.d("ZingDemoDraggable", "left " + left);
 
             mCapturedView.offsetLeftAndRight(clampedX - oldLeft);
         }
         if (dy != 0) {
             clampedY = mCallback.clampViewPositionVertical(mCapturedView, top, dy);
-//            Log.d("ZingDemoDraggable", "top Y " + top);
             mCapturedView.offsetTopAndBottom(clampedY - oldTop);
         }
 
