@@ -13,16 +13,19 @@ import android.support.v4.app.Fragment;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.example.zingdemodraggable.R;
 import com.example.zingdemodraggable.datamodel.Video;
+import com.example.zingdemodraggable.view.ControllerVideo;
 import com.example.zingdemodraggable.view.DragYouTubeLayout;
 import com.example.zingdemodraggable.view.NumberProgressBar;
 
@@ -43,8 +46,10 @@ public class VideoFragment extends Fragment {
     private Video video;
     private VideoView videoView;
     private DragYouTubeLayout dragLayout;
+    private LinearLayout frontLayout;
     private VideoFragment videoFragment = this;
     private ProgressDialog pd;
+    private ControllerVideo controllerVideo;
 
     private NumberProgressBar numberProgressBar;
     // TODO: Rename and change types of parameters
@@ -54,6 +59,15 @@ public class VideoFragment extends Fragment {
 
     private Bitmap imageThumbnail;
 
+    private Boolean isLayoutChanged = false;
+
+    Handler mHandler = new Handler();
+    Runnable mRunnable = new Runnable() {
+        @Override
+        public void run() {
+            controllerVideo.setVisibility(View.INVISIBLE);
+        }
+    };
 
     protected static class ExtendsHandler extends Handler
     {
@@ -151,7 +165,76 @@ public class VideoFragment extends Fragment {
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_video, container, false);
         videoView = view.findViewById(R.id.main_image);
+//        videoView.bringToFront();
+//        videoView.invalidate();
+        controllerVideo = view.findViewById(R.id.front_layout);
+        videoView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (!isLayoutChanged) {
+                    int action = event.getAction();
+//                Log.d("ZingDemoDraggable", "videoView clicked " + action);
+                    if (action == MotionEvent.ACTION_UP) {
+                        if (controllerVideo.getVisibility() == View.INVISIBLE) {
+                            controllerVideo.setVisibility(View.VISIBLE);
+                            final ImageButton bigPlayPauseButton = view.findViewById(R.id.big_play_pause_button);
+                            final ImageButton bigNextButton = view.findViewById(R.id.big_next_button);
+                            final ImageButton bigPreviousButton = view.findViewById(R.id.big_previous_button);
+
+                            bigNextButton.setImageResource(R.drawable.next_button);
+                            bigPreviousButton.setImageResource(R.drawable.previous_button);
+//                    bigPlayPauseButton.setBackgroundResource(0);
+                            if (videoView.isPlaying()) {
+                                bigPlayPauseButton.setImageResource(R.drawable.big_pause);
+                            } else {
+                                bigPlayPauseButton.setImageResource(R.drawable.big_play);
+                            }
+                            bigPlayPauseButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+//                        listener.onClick();
+                                    mHandler.removeCallbacks(mRunnable);
+                                    Log.d("ZingDemoDraggable", "removeCallBacks");
+
+                                    mHandler.postDelayed(mRunnable, 2000);
+                                    if (videoView.isPlaying()) {
+                                        videoView.pause();
+                                        bigPlayPauseButton.setImageResource(R.drawable.big_play);
+
+                                    } else {
+                                        videoView.start();
+                                        bigPlayPauseButton.setImageResource(R.drawable.big_pause);
+                                        extendsHandler.sendEmptyMessage(SHOW_PROGRESS);
+
+                                    }
+                                }
+                            });
+
+
+                            mHandler.removeCallbacks(mRunnable);
+                            Log.d("ZingDemoDraggable", "removeCallBacks");
+
+                            mHandler.postDelayed(mRunnable, 2000);
+                        } else {
+                            controllerVideo.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                }
+                return true;
+            }
+
+        });
+//        videoView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                controllerVideo.setVisibility(View.VISIBLE);
+//                mHandler.removeCallbacks(mRunnable);
+//                mHandler.postDelayed(mRunnable, 3000);
+//
+//            }
+//        });
         dragLayout = view.findViewById(R.id.drag_layout);
+//        frontLayout = view.findViewById(R.id.front_layout);
         numberProgressBar = (dragLayout.getEnableProgressBar()) ? (NumberProgressBar)view.findViewById(R.id.progress_bar) : null;
         dragLayout.setOnDragViewChangeListener(new DragYouTubeLayout.OnDragViewChangeListener() {
             @Override
@@ -202,9 +285,25 @@ public class VideoFragment extends Fragment {
                 miniEpisode.setText(String.format("Tập: %s", video.getEpisode()));
 
             }
+
+            @Override
+            public void onLayoutChanged(){
+                if (isLayoutChanged){
+                    return;
+                }
+                isLayoutChanged = true;
+                controllerVideo.setVisibility(View.INVISIBLE);
+
+            }
+            @Override
+            public void onLayoutFlattened(){
+                isLayoutChanged = false;
+            }
         });
         dragLayout.bringToFront();
         dragLayout.invalidate();
+//        frontLayout.bringToFront();
+//        frontLayout.invalidate();
         pd = new ProgressDialog(getActivity());
         pd.setMessage("Buffering video ...");
         pd.show();

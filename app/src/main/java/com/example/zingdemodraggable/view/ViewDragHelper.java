@@ -490,7 +490,6 @@ public class ViewDragHelper {
             throw new IllegalArgumentException("captureChildView: parameter must be a descendant " +
                     "of the ViewDragHelper's tracked parent view (" + mParentView + ")");
         }
-
         mCapturedView = childView;
         mActivePointerId = activePointerId;
         mCallback.onViewCaptured(childView, activePointerId);
@@ -1090,7 +1089,6 @@ public class ViewDragHelper {
     public void processTouchEvent(MotionEvent ev) {
         final int action = ev.getAction();
         final int actionIndex = ev.getActionIndex();
-
         if (action == MotionEvent.ACTION_DOWN) {
             // Reset things for a new event stream, just in case we didn't get
             // the whole previous stream.
@@ -1152,6 +1150,7 @@ public class ViewDragHelper {
             }
 
             case MotionEvent.ACTION_MOVE: {
+//                Log.d("ZingDemoDraggable", "action move");
                 if (mDragState == STATE_DRAGGING) {
                     final int index = ev.findPointerIndex(mActivePointerId);
                     final float x = ev.getX(index);

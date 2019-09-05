@@ -42,7 +42,7 @@ public class DragYouTubeLayout extends RelativeLayout {
     // Set secondView 's Id and layout
     private RelativeLayout secondView;
     private final int secondViewId = R.id.info_layout;
-    private int secondViewLayout = R.layout.full_layout_info;
+    private final int secondViewLayout = R.layout.full_layout_info;
 
 
     private VideoView mainViewChild;
@@ -114,6 +114,7 @@ public class DragYouTubeLayout extends RelativeLayout {
 
         @Override
         public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
+            listener.onLayoutChanged();
             mDraggingBorder = top;
 
             mDragOffset = (float) top / mVerticalRange;
@@ -161,7 +162,8 @@ public class DragYouTubeLayout extends RelativeLayout {
 
         @Override
         public boolean tryCaptureView(View view, int i) {
-            return (view.getId() == R.id.main_view);
+//            Log.d("ZingDemoDraggable", "second " + (view.getId() == R.id.mini_info));
+            return (view.getId() == R.id.main_view || view.getId() == R.id.mini_info);
         }
 
         @Override
@@ -292,11 +294,15 @@ public class DragYouTubeLayout extends RelativeLayout {
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-//        Log.d("ZingDemoDraggable", "onLayout called " );
+        if (currentDrag == 0){
+            listener.onLayoutFlattened();
+        } else {
+            listener.onLayoutChanged();
+        }
 
 //        mVerticalRange = 1 - width * 9 / 16;
         if (mVerticalRange == 0){
-        mVerticalRange = Math.round(getHeight() - getWidth() * 9f / 16 * MIN_SCALE);
+            mVerticalRange = Math.round(getHeight() - getWidth() * 9f / 16 * MIN_SCALE);
         }
 
 
@@ -416,12 +422,17 @@ public class DragYouTubeLayout extends RelativeLayout {
     public boolean onInterceptTouchEvent(MotionEvent ev) {
 
         final int action = ev.getAction();
+//        Log.d("ZingDemoDraggable", "action " + action);
 
         if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
             mDragHelper.cancel();
             return false;
         }
-        return mDragHelper.shouldInterceptTouchEvent(ev);
+
+        Boolean should = mDragHelper.shouldInterceptTouchEvent(ev);
+//        Log.d("ZingDemoDraggable", "onIntercept DragLayout " + should);
+
+        return should;
 
 //        return mDragHelper.shouldInterceptTouchEvent(ev);
 //        return false;
@@ -441,10 +452,15 @@ public class DragYouTubeLayout extends RelativeLayout {
     }
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-//        Log.d("ZingDemoDraggable", "onTouchEvent");
+//        Log.d("ZingDemoDraggable", "onTouchEvent DragLayout action " + ev.getAction());
         mDragHelper.processTouchEvent(ev);
-        boolean isDragViewHit = isViewHit(mainView, (int) ev.getX(), (int) ev.getY());
+        boolean isDragViewHit = isViewHit(mainView, (int) ev.getX(), (int) ev.getY()) || isViewHit(secondView,(int) ev.getX(), (int) ev.getY());
 
+//        if (mDraggingState == MotionEvent.ACTION_DOWN && ev.getAction() == MotionEvent.ACTION_UP){
+////            Log.d("ZingDemoDraggable", "release");
+//
+//            return false;
+//        }
         return isDragViewHit;
     }
 
@@ -522,6 +538,8 @@ public class DragYouTubeLayout extends RelativeLayout {
     public interface OnDragViewChangeListener{
         void onMiniViewReplaced();
         void onSecondViewReplaced();
+        void onLayoutChanged();
+        void onLayoutFlattened();
     }
     private void initAtribute(AttributeSet attributeSet){
         if (attributeSet == null){

@@ -7,6 +7,7 @@
     tools:context=".fragments.VideoFragment">
 
     <!-- TODO: Update blank fragment layout -->
+
     <com.example.zingdemodraggable.view.DragYouTubeLayout
         android:id="@+id/drag_layout"
         android:layout_width="wrap_content"
@@ -20,11 +21,66 @@
             android:id="@+id/main_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimaryDark">
-            <VideoView
-                android:id="@+id/main_image"
-                android:layout_width="1080px"
-                android:layout_height="607px" />
+            android:background="@color/colorPrimaryDark"
+            android:orientation="vertical">
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <VideoView
+                    android:id="@+id/main_image"
+                    android:layout_width="1080px"
+                    android:layout_height="607px"
+
+                    />
+                <com.example.zingdemodraggable.view.ControllerVideo
+                    android:id="@+id/front_layout"
+                    android:layout_width="1080px"
+                    android:layout_height="607px"
+                    android:background="#000000"
+                    android:alpha="0.5"
+                    android:visibility="invisible"
+                    >
+
+                    <ImageButton
+                        android:id="@+id/big_previous_button"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:scaleType="fitCenter"
+
+                        custom:layout_constraintBottom_toBottomOf="parent"
+                        custom:layout_constraintLeft_toLeftOf="parent"
+                        custom:layout_constraintRight_toLeftOf="@+id/big_play_pause_button"
+                        custom:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageButton
+                        android:id="@+id/big_play_pause_button"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:scaleType="fitCenter"
+
+                        custom:layout_constraintBottom_toBottomOf="@+id/front_layout"
+                        custom:layout_constraintLeft_toLeftOf="@+id/front_layout"
+                        custom:layout_constraintRight_toRightOf="@+id/front_layout"
+                        custom:layout_constraintTop_toTopOf="@+id/front_layout" />
+                    <ImageButton
+                        android:id="@+id/big_next_button"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:scaleType="fitCenter"
+
+                        custom:layout_constraintBottom_toBottomOf="parent"
+                        custom:layout_constraintLeft_toRightOf="@+id/big_play_pause_button"
+                        custom:layout_constraintRight_toRightOf="parent"
+                        custom:layout_constraintTop_toTopOf="parent"/>
+
+
+                </com.example.zingdemodraggable.view.ControllerVideo>
+
+            </FrameLayout>
+
+
+
+
 
         </LinearLayout>
 
